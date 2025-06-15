@@ -13,9 +13,9 @@ import java.util.function.Consumer;
 @Configuration
 public class InvestApiConfig {
 
-    private static final String TOKEN = "chpokerman";
+    private static final String TOKEN = "t.rNoz7VuY6Obq4WttMikAopqywLLeVzQOzOh4YI0EXdHYyHPcdaT5Aug24DGHmXUpUVrzafRZuyhL6Ks-Cqs6DA";
 
-    @Bean()
+    @Bean
     public InvestApi investApi() {
         return InvestApi.create(TOKEN);
     }
