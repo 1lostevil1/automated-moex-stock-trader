@@ -1,6 +1,7 @@
 package org.example.config;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,15 +15,21 @@ import java.util.function.Consumer;
 
 @Configuration
 public class InvestApiConfig {
-    @Value("${app.token}")
-    private String token;
+
+
+    @Autowired
+    private ApplicationConfig applicationConfig;
     public static final String CANDLE = "candleService";
     public static final String ORDER_BOOK = "orderBookService";
     public static final String TRADES = "tradesService";
     public static final String LAST_PRICE = "lastPriceService";
+
+    public static final String RSI ="rsiService";
+    public static final String MACD ="macdService";
+
     @Bean
     public InvestApi investApi() {
-        return InvestApi.create(token);
+        return InvestApi.create(applicationConfig.token());
     }
 
     @Bean
