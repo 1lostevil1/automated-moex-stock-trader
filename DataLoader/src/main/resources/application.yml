@@ -1,0 +1,7 @@
+spring:
+  application:
+    name : "DataLoader"
+server:
+  port: 8080
+app:
+  token: "t.rNoz7VuY6Obq4WttMikAopqywLLeVzQOzOh4YI0EXdHYyHPcdaT5Aug24DGHmXUpUVrzafRZuyhL6Ks-Cqs6DA"
