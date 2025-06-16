@@ -41,6 +41,15 @@ public class OrderBookService implements DataStreamService {
                 .subscribeOrderbook(figiList);
     }
 
+    public void subscribe(List<String> tickers, int depth) {
+        List<String> figiList = tickers.stream()
+                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
+                .toList();
+        investApi.getMarketDataStreamService()
+                .newStream(STREAM_ID, processor, errorHandler)
+                .subscribeOrderbook(figiList,depth);
+    }
+
     public void unsubscribe(List<String> tickers) {
         List<String> figiList = tickers.stream()
                 .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))

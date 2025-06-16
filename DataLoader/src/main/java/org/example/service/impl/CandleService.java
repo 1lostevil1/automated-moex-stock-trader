@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
+import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
@@ -40,6 +41,16 @@ public class CandleService implements DataStreamService {
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID, processor, errorHandler)
                 .subscribeCandles(figiList);
+    }
+
+    public void subscribe(List<String> tickers, SubscriptionInterval interval) {
+        List<String> figiList = tickers.stream()
+                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
+                .toList();
+
+        investApi.getMarketDataStreamService()
+                .newStream(STREAM_ID, processor, errorHandler)
+                .subscribeCandles(figiList,interval);
     }
 
     public void unsubscribe(List<String> tickers) {
