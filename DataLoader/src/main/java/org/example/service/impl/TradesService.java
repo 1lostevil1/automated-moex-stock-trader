@@ -35,22 +35,18 @@ public class TradesService implements DataStreamService {
 
 
     public void subscribe(List<String> tickers) {
-        List<String> figi = tickers.stream()
+        List<String> figiList = tickers.stream()
                 .map(ticker->FigiFinder.getFigiByTicker(investApi,ticker)).toList();
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID,processor, errorHandler
-        ).subscribeTrades(figi);
+        ).subscribeTrades(figiList);
     }
 
     public void unsubscribe(List<String> tickers) {
 
-        List<String> figi = tickers.stream()
+        List<String> figiList = tickers.stream()
                 .map(ticker->FigiFinder.getFigiByTicker(investApi,ticker)).toList();
         investApi.getMarketDataStreamService().getStreamById(STREAM_ID)
-                .unsubscribeTrades(figi);
-    }
-    @PostConstruct
-    private void del(){
-        subscribe(List.of("SBER"));
+                .unsubscribeTrades(figiList);
     }
 }
