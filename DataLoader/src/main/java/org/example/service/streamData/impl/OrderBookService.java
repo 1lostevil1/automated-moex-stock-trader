@@ -1,5 +1,6 @@
 package org.example.service.streamData.impl;
 
+import jakarta.annotation.PostConstruct;
 import org.example.config.InvestApiConfig;
 import org.example.service.streamData.interfaces.DataStreamService;
 import org.example.util.FigiFinder;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
+import ru.tinkoff.piapi.contract.v1.OrderBook;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
@@ -57,5 +59,10 @@ public class OrderBookService implements DataStreamService {
         investApi.getMarketDataStreamService()
                 .getStreamById(STREAM_ID)
                 .unsubscribeOrderbook(figiList);
+    }
+
+    @PostConstruct
+    public  void foo(){
+        subscribe(List.of("SBER"));
     }
 }

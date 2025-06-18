@@ -21,21 +21,25 @@
         <spring.boot.version>3.3.0</spring.boot.version>
         <postgresql.version>42.7.3</postgresql.version>
         <liquibase.version>4.25.0</liquibase.version>
+        <lombok.version>1.18.32</lombok.version>
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <native.image.support.version>0.14.1</native.image.support.version>
+        <tinkoff.sdk.version>1.5</tinkoff.sdk.version>
+        <ta4j.version>0.15</ta4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>native-image-support</artifactId>
-                <version>0.14.1</version>
+                <version>${native.image.support.version}</version>
             </dependency>
             <dependency>
                 <groupId>ru.tinkoff.piapi</groupId>
                 <artifactId>java-sdk-core</artifactId>
-                <version>1.5</version>
+                <version>${tinkoff.sdk.version}</version>
             </dependency>
             <!-- Spring Boot BOM -->
             <dependency>
@@ -59,6 +63,21 @@
                 <artifactId>liquibase-core</artifactId>
                 <version>${liquibase.version}</version>
             </dependency>
+
+            <!-- Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- индексы -->
+            <dependency>
+                <groupId>org.ta4j</groupId>
+                <artifactId>ta4j-core</artifactId>
+                <version>${ta4j.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -72,6 +91,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -88,11 +114,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
