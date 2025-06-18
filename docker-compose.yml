@@ -1,0 +1,22 @@
+services:
+  postgres_db:
+    container_name: data-access-postgres
+    image: postgres:17.0-alpine3.20
+    environment:
+      POSTGRES_DB: "TraderDB"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pg-volume"
+    ports:
+      - "4321:5432"
+    volumes:
+      - pg-volume:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  pg-volume:
+
+networks:
+  app-network:
+    driver: bridge
