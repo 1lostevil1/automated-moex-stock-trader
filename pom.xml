@@ -1,32 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
     <artifactId>automated-moex-stock-trader</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <modules>
-        <module>DataLoader</module>
         <module>MoexStockCommon</module>
+        <module>DataLoader</module>
+        <!-- Другие модули -->
     </modules>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
         <spring.boot.version>3.3.0</spring.boot.version>
-        <!-- Версии зависимостей -->
         <postgresql.version>42.7.3</postgresql.version>
-        <cassandra.driver.version>4.17.0</cassandra.driver.version>
-        <lettuce.version>6.2.4</lettuce.version>
+        <liquibase.version>4.25.0</liquibase.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Boot -->
+
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>native-image-support</artifactId>
+                <version>0.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.tinkoff.piapi</groupId>
+                <artifactId>java-sdk-core</artifactId>
+                <version>1.5</version>
+            </dependency>
+            <!-- Spring Boot BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -35,61 +46,71 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- PostgreSQL -->
+            <!-- PostgreSQL JDBC Driver -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
 
-            <!-- Cassandra -->
+            <!-- Liquibase -->
             <dependency>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-core</artifactId>
-                <version>${cassandra.driver.version}</version>
-            </dependency>
-
-            <!-- Redis (Lettuce) -->
-            <dependency>
-                <groupId>io.lettuce.core</groupId>
-                <artifactId>lettuce-core</artifactId>
-                <version>${lettuce.version}</version>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Boot Starters (общие для всех модулей) -->
+        <!-- Общие зависимости для всех модулей -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Spring Data JPA (PostgreSQL) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- Spring Data Cassandra -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-cassandra</artifactId>
-        </dependency>
-
-        <!-- Spring Data Redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
+            </plugin>
+
+            <!-- Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Liquibase Maven Plugin -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

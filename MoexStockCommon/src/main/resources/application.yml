@@ -1,33 +1,7 @@
 spring:
-  # PostgreSQL
   datasource:
-    url: jdbc:postgresql://postgres_db:5432/MusicStreamingServiceDb
-    username: MusicStreamingService
+    url: jdbc:postgresql://localhost:4321/TraderDB
+    username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-  # Cassandra
-  data:
-    cassandra:
-      contact-points:
-        - cassandra_db
-      port: 9042
-      keyspace-name: MyKeyspace
-      schema-action: CREATE_IF_NOT_EXISTS
-      local-datacenter: datacenter1
-
-  # Redis
-  redis:
-    host: redis_db
-    port: 6379
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 4
-        min-idle: 1
-        max-wait: 2000ms
+  liquibase:
+    enabled: false
