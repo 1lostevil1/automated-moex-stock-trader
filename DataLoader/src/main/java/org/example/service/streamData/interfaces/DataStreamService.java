@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.service.streamData.interfaces;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.example.util;
+package org.example.util.finder;
 
 import ru.tinkoff.piapi.core.InvestApi;
 

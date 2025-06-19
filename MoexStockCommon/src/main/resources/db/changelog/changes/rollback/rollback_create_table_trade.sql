@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS trade CASCADE;
+DROP TYPE IF EXISTS trade_direction;

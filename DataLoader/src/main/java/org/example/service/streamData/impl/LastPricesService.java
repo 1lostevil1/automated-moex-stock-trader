@@ -1,8 +1,8 @@
-package org.example.service.impl;
+package org.example.service.streamData.impl;
 
 import org.example.config.InvestApiConfig;
-import org.example.service.DataStreamService;
-import org.example.util.FigiFinder;
+import org.example.service.streamData.interfaces.DataStreamService;
+import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,29 +26,22 @@ public class LastPricesService implements DataStreamService {
             InvestApi investApi,
             @Qualifier(InvestApiConfig.LAST_PRICE) StreamProcessor<MarketDataResponse> processor,
             Consumer<Throwable> errorHandler
-    ){
+    ) {
         this.investApi = investApi;
         this.processor = processor;
         this.errorHandler = errorHandler;
     }
 
-    public void subscribe(List<String> tickers) {
-        List<String> figiList = tickers.stream()
-                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
-                .toList();
+    public void subscribe(List<String> figi) {
 
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID, processor, errorHandler)
-                .subscribeLastPrices(figiList);
+                .subscribeLastPrices(figi);
     }
 
-    public void unsubscribe(List<String> tickers) {
-        List<String> figiList = tickers.stream()
-                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
-                .toList();
-
+    public void unsubscribe(List<String> figi) {
         investApi.getMarketDataStreamService()
                 .getStreamById(STREAM_ID)
-                .unsubscribeLastPrices(figiList);
+                .unsubscribeLastPrices(figi);
     }
 }
