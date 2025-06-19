@@ -2,7 +2,7 @@ package org.example.service.streamData.impl;
 
 import org.example.config.InvestApiConfig;
 import org.example.service.streamData.interfaces.DataStreamService;
-import org.example.util.FigiFinder;
+import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,31 +21,29 @@ public class TradesService implements DataStreamService {
     private final InvestApi investApi;
     private final StreamProcessor<MarketDataResponse> processor;
     private final Consumer<Throwable> errorHandler;
+
     @Autowired
     public TradesService(
             InvestApi investApi,
-            @Qualifier(InvestApiConfig.TRADES) StreamProcessor<MarketDataResponse> processor,
+            @Qualifier(InvestApiConfig.TRADE) StreamProcessor<MarketDataResponse> processor,
             Consumer<Throwable> errorHandler
-    ){
+    ) {
         this.investApi = investApi;
         this.processor = processor;
         this.errorHandler = errorHandler;
     }
 
 
-    public void subscribe(List<String> tickers) {
-        List<String> figiList = tickers.stream()
-                .map(ticker->FigiFinder.getFigiByTicker(investApi,ticker)).toList();
+    public void subscribe(List<String> figi) {
+
         investApi.getMarketDataStreamService()
-                .newStream(STREAM_ID,processor, errorHandler
-        ).subscribeTrades(figiList);
+                .newStream(STREAM_ID, processor, errorHandler
+                ).subscribeTrades(figi);
     }
 
-    public void unsubscribe(List<String> tickers) {
+    public void unsubscribe(List<String> figi) {
 
-        List<String> figiList = tickers.stream()
-                .map(ticker->FigiFinder.getFigiByTicker(investApi,ticker)).toList();
         investApi.getMarketDataStreamService().getStreamById(STREAM_ID)
-                .unsubscribeTrades(figiList);
+                .unsubscribeTrades(figi);
     }
 }

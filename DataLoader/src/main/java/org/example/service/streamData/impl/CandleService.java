@@ -1,18 +1,16 @@
 package org.example.service.streamData.impl;
 
-import jakarta.annotation.PostConstruct;
 import org.example.config.InvestApiConfig;
 import org.example.service.streamData.interfaces.DataStreamService;
-import org.example.util.FigiFinder;
-import org.jetbrains.annotations.NotNull;
+import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.tinkoff.piapi.contract.v1.*;
+import ru.tinkoff.piapi.contract.v1.MarketDataResponse;
+import ru.tinkoff.piapi.contract.v1.SubscriptionInterval;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.stream.StreamProcessor;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -35,40 +33,17 @@ public class CandleService implements DataStreamService {
         this.errorHandler = errorHandler;
     }
 
-    public void subscribe(List<String> tickers) {
-        List<String> figiList = tickers.stream()
-                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
-                .toList();
+    public void subscribe(List<String> figi) {
 
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID, processor, errorHandler)
-                .subscribeCandles(figiList);
+                .subscribeCandles(figi,SubscriptionInterval.SUBSCRIPTION_INTERVAL_ONE_MINUTE);
     }
 
-    public void subscribe(List<String> tickers, SubscriptionInterval interval) {
-        List<String> figiList = tickers.stream()
-                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
-                .toList();
-
-        investApi.getMarketDataStreamService()
-                .newStream(STREAM_ID, processor, errorHandler)
-                .subscribeCandles(figiList,interval);
-    }
-
-    public void unsubscribe(List<String> tickers) {
-        List<String> figiList = tickers.stream()
-                .map(ticker -> FigiFinder.getFigiByTicker(investApi, ticker))
-                .toList();
+    public void unsubscribe(List<String> figi) {
 
         investApi.getMarketDataStreamService()
                 .getStreamById(STREAM_ID)
-                .unsubscribeCandles(figiList);
+                .unsubscribeCandles(figi);
     }
-
-    public List<HistoricCandle> getCandles(String ticker, @NotNull Instant from, @NotNull Instant to, CandleInterval interval){
-        String figi = FigiFinder.getFigiByTicker(investApi,ticker);
-        return  investApi.getMarketDataService().getCandlesSync(figi,from,to,interval);
-    }
-
-
 }

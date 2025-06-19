@@ -1,0 +1,24 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create-stock-data-table" author="kireev">
+        <sqlFile path="changes/create/create_table_stock_data.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="changes/create/create_table_candle.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="changes/create/create_table_orderbook.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="changes/create/create_table_trade.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="changes/create/create_table_stock.sql" relativeToChangelogFile="true"/>
+
+        <rollback>
+            <sqlFile path="changes/rollback/rollback_create_table_stock_data.sql" relativeToChangelogFile="true"/>
+            <sqlFile path="changes/rollback/rollback_create_table_candle.sql" relativeToChangelogFile="true"/>
+            <sqlFile path="changes/rollback/rollback_create_table_orderbook.sql" relativeToChangelogFile="true"/>
+            <sqlFile path="changes/rollback/rollback_create_table_trade.sql" relativeToChangelogFile="true"/>
+            <sqlFile path="changes/rollback/rollback_create_table_stock.sql" relativeToChangelogFile="true"/>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

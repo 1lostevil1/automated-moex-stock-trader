@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.ta4j.core.Bar;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseBarSeries;
-import org.ta4j.core.indicators.MACDIndicator;
 import org.ta4j.core.indicators.EMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 
@@ -14,17 +13,15 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
 
-@Service("MACD")
-public class MacdService implements IndicatorService {
+@Service("EMA")
+public class EmaService implements IndicatorService {
 
-    private final int SHORT_EMA_PERIOD = 12;
-    private final int LONG_EMA_PERIOD = 26;
-    private final int SIGNAL_PERIOD = 9;
+    private final int PERIOD = 14;
 
     @Override
     public double calculate(List<CandleEntity> candles) {
-        if (candles == null || candles.size() < LONG_EMA_PERIOD + SIGNAL_PERIOD) {
-            throw new IllegalArgumentException("Недостаточно данных для расчёта MACD");
+        if (candles == null || candles.size() < PERIOD) {
+            throw new IllegalArgumentException("Недостаточно данных для расчёта EMA");
         }
 
         BaseBarSeries series = new BaseBarSeries();
@@ -43,14 +40,9 @@ public class MacdService implements IndicatorService {
         }
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(series);
+        EMAIndicator emaIndicator = new EMAIndicator(closePriceIndicator, PERIOD);
 
-        MACDIndicator macd = new MACDIndicator(closePriceIndicator, SHORT_EMA_PERIOD, LONG_EMA_PERIOD);
-        EMAIndicator signal = new EMAIndicator(macd, SIGNAL_PERIOD);
-
-        double macdValue = macd.getValue(series.getEndIndex()).doubleValue();
-        double signalValue = signal.getValue(series.getEndIndex()).doubleValue();
-
-        return macdValue - signalValue;
+        return emaIndicator.getValue(series.getEndIndex()).doubleValue();
     }
 
     private ZonedDateTime toZonedDateTime(OffsetDateTime dateTime) {
@@ -83,6 +75,6 @@ public class MacdService implements IndicatorService {
 
     @Override
     public int getCount() {
-        return LONG_EMA_PERIOD + SIGNAL_PERIOD;
+        return PERIOD;
     }
 }

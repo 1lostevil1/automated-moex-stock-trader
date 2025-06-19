@@ -57,13 +57,6 @@
                 <version>${postgresql.version}</version>
             </dependency>
 
-            <!-- Liquibase -->
-            <dependency>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-core</artifactId>
-                <version>${liquibase.version}</version>
-            </dependency>
-
             <!-- Lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -72,7 +65,7 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- индексы -->
+            <!-- Ta4j -->
             <dependency>
                 <groupId>org.ta4j</groupId>
                 <artifactId>ta4j-core</artifactId>
@@ -127,23 +120,6 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
-
-            <!-- Liquibase Maven Plugin -->
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>${liquibase.version}</version>
-                <configuration>
-                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                        <version>${postgresql.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
