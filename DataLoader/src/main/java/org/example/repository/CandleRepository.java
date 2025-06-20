@@ -36,10 +36,7 @@ public class CandleRepository {
                 "close_price = EXCLUDED.close_price, " +
                 "high_price = EXCLUDED.high_price, " +
                 "low_price = EXCLUDED.low_price, " +
-                "volume = EXCLUDED.volume, " +
-                "rsi = EXCLUDED.rsi, " +
-                "macd = EXCLUDED.macd, " +
-                "ema = EXCLUDED.ema";
+                "volume = EXCLUDED.volume";
 
         jdbcClient.sql(sql).params(
                 candleEntity.getFigi(),
@@ -56,18 +53,13 @@ public class CandleRepository {
         ).update();
     }
 
-    public List<CandleEntity> getAll() {
-        String sql = "SELECT * FROM candle";
-        return jdbcClient.sql(sql).query(rowMapper).list();
-    }
-
-    public List<CandleEntity> getByFigi(String figi) {
-        String sql = "SELECT * FROM candle WHERE figi = ?";
-        return jdbcClient.sql(sql).params(figi).query(rowMapper).list();
-    }
 
     public List<CandleEntity> getByFigiWithLimit(String figi, int limit) {
-        String sql = "SELECT * FROM candle WHERE figi = ? ORDER BY time DESC LIMIT ?";
+        String sql = "SELECT * FROM " +
+                "(" +
+                "               SELECT * FROM candle WHERE figi = ? ORDER BY time DESC LIMIT ?\n" +
+                ")" +
+                "ORDER BY time ASC";
         return jdbcClient.sql(sql).params(figi, limit).query(rowMapper).list();
     }
 

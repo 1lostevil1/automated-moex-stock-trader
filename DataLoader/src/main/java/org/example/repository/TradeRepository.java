@@ -38,8 +38,4 @@ public class TradeRepository {
         ).update();
     }
 
-    public List<TradeEntity> getAll() {
-        String sql = "SELECT * FROM candle";
-        return jdbcClient.sql(sql).query(rowMapper).list();
-    }
 }

@@ -3,8 +3,8 @@ package org.example.repository;
 import org.example.mapper.StockRowMapper;
 import org.example.postgres.entity.StockEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.List;
 @Repository
 public class StockRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<StockEntity> rowMapper= new StockRowMapper();
+    private final JdbcClient jdbcClient;
+    private final RowMapper<StockEntity> rowMapper = new StockRowMapper();
 
     @Autowired
-    public StockRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public StockRepository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
     }
 
     public void save(StockEntity stock) {
@@ -25,15 +25,15 @@ public class StockRepository {
                 "ON CONFLICT (figi) DO UPDATE SET instrument_uid = EXCLUDED.instrument_uid, " +
                 "ticker = EXCLUDED.ticker, name = EXCLUDED.name";
 
-        jdbcTemplate.update(sql,
+        jdbcClient.sql(sql).params(
                 stock.getFigi(),
                 stock.getInstrumentUid(),
                 stock.getTicker(),
-                stock.getName());
+                stock.getName()).update();
     }
 
     public List<StockEntity> getAll() {
         String sql = "SELECT * FROM stock";
-        return jdbcTemplate.query(sql, rowMapper);
+        return jdbcClient.sql(sql).query(rowMapper).list();
     }
 }

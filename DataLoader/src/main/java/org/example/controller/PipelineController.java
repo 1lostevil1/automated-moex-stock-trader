@@ -22,14 +22,14 @@ public class PipelineController {
         stocks = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
     }
 
-    @GetMapping("/sub")
+    @GetMapping("/start")
     public void subscribe() {
         services.forEach((key, value) -> {
             value.subscribe(stocks);
         });
     }
 
-    @GetMapping("/unsub")
+    @GetMapping("/stop")
     public void unsubscribe() {
         services.forEach((key, value) -> {
             value.unsubscribe(stocks);

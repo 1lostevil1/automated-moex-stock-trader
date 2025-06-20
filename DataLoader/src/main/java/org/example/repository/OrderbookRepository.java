@@ -46,8 +46,4 @@ public class OrderbookRepository {
         }
     }
 
-    public List<OrderbookEntity> getAll() {
-        String sql = "SELECT * FROM orderbook";
-        return jdbcClient.sql(sql).query(rowMapper).list();
-    }
 }

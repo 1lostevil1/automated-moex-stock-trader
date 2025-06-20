@@ -29,10 +29,10 @@ public class RsiService implements IndicatorService {
         for (CandleEntity candle : candles) {
             ZonedDateTime endTime = toZonedDateTime(candle.getTime());
 
-            double openPrice = bigDecimalToDouble(candle.getOpenPrice());
-            double highPrice = bigDecimalToDouble(candle.getHighPrice());
-            double lowPrice = bigDecimalToDouble(candle.getLowPrice());
-            double closePrice = bigDecimalToDouble(candle.getClosePrice());
+            double openPrice = candle.getOpenPrice().doubleValue();
+            double highPrice = candle.getHighPrice().doubleValue();
+            double lowPrice = candle.getLowPrice().doubleValue();
+            double closePrice = candle.getClosePrice().doubleValue();
             long volume = candle.getVolume();
 
             Bar bar = createBar(series, endTime, openPrice, highPrice, lowPrice, closePrice, volume);
@@ -47,10 +47,6 @@ public class RsiService implements IndicatorService {
 
     private ZonedDateTime toZonedDateTime(OffsetDateTime dateTime) {
         return dateTime.toLocalDateTime().atZone(ZoneId.of("UTC"));
-    }
-
-    private double bigDecimalToDouble(BigDecimal value) {
-        return value != null ? value.doubleValue() : 0.0;
     }
 
     private Bar createBar(BaseBarSeries series, ZonedDateTime endTime,
