@@ -1,7 +1,7 @@
-package org.example.repository;
+package org.example.postgres.repository;
 
-import org.example.mapper.CandleRowMapper;
 import org.example.postgres.entity.CandleEntity;
+import org.example.postgres.mapper.CandleRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -55,13 +55,16 @@ public class CandleRepository {
 
 
     public List<CandleEntity> getByFigiWithLimit(String figi, int limit) {
-        String sql = "SELECT * FROM " +
-                "(" +
-                "               SELECT * FROM candle WHERE figi = ? ORDER BY time DESC LIMIT ?\n" +
-                ")" +
-                "ORDER BY time ASC";
+        String sql = """
+                SELECT * FROM  
+                ( 
+                               SELECT * FROM candle WHERE figi = ? ORDER BY time DESC LIMIT ?
+                ) 
+                ORDER BY time ASC
+                """;
         return jdbcClient.sql(sql).params(figi, limit).query(rowMapper).list();
     }
+
 
     public void updateRsi(String figi, BigDecimal rsi) {
         String sql = """
@@ -97,6 +100,15 @@ public class CandleRepository {
                 WHERE id IN (SELECT id FROM latest_candle)
                 """;
         jdbcClient.sql(sql).params(figi, ema).update();
+    }
+
+    public CandleEntity getLastCandleByFigi(String figi) {
+        String sql = "SELECT * FROM candle WHERE figi = ? ORDER BY time DESC LIMIT 1";
+        return jdbcClient.sql(sql)
+                .params(figi)
+                .query(rowMapper)
+                .optional()
+                .orElse(null);
     }
 }
 

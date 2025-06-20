@@ -1,15 +1,17 @@
-package org.example.repository;
+package org.example.postgres.repository;
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.mapper.OrderbookRowMapper;
 import org.example.postgres.entity.OrderbookEntity;
+import org.example.postgres.mapper.OrderbookRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
@@ -44,6 +46,23 @@ public class OrderbookRepository {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error serializing bids/asks to JSON", e);
         }
+    }
+
+    public List<OrderbookEntity> findByFigiAndTimeRange(String figi, OffsetDateTime from, OffsetDateTime to) {
+        String sql = """
+        SELECT * FROM orderbook
+        WHERE figi = ? AND time BETWEEN ? AND ?
+        ORDER BY time ASC
+        """;
+
+        return jdbcClient.sql(sql)
+                .params(
+                        figi,
+                        Timestamp.from(from.toInstant()),
+                        Timestamp.from(to.toInstant())
+                )
+                .query(rowMapper)
+                .list();
     }
 
 }

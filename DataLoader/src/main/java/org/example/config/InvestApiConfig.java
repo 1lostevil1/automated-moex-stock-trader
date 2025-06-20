@@ -1,9 +1,8 @@
 package org.example.config;
 
-
-import org.example.repository.CandleRepository;
-import org.example.repository.OrderbookRepository;
-import org.example.repository.TradeRepository;
+import org.example.postgres.repository.CandleRepository;
+import org.example.postgres.repository.OrderbookRepository;
+import org.example.postgres.repository.TradeRepository;
 import org.example.util.dtoMapper.CandleMapper;
 import org.example.util.dtoMapper.OrderbookMapper;
 import org.example.util.dtoMapper.TradeMapper;

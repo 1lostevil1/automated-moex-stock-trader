@@ -1,11 +1,15 @@
 package org.example.controller;
 
 import org.example.postgres.entity.StockEntity;
-import org.example.repository.StockRepository;
+import org.example.postgres.repository.StockRepository;
 import org.example.service.streamData.interfaces.DataStreamService;
+import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
 import java.util.Map;
@@ -13,11 +17,15 @@ import java.util.Map;
 @Controller
 public class PipelineController {
 
+    private final FigiFinder figiFinder;
+    private final StockRepository stockRepository;
     private final Map<String, DataStreamService> services;
     List<String> stocks;
 
     @Autowired
-    public PipelineController(StockRepository stockRepository, Map<String, DataStreamService> services) {
+    public PipelineController(FigiFinder figiFinder, StockRepository stockRepository1, StockRepository stockRepository, Map<String, DataStreamService> services) {
+        this.figiFinder = figiFinder;
+        this.stockRepository = stockRepository1;
         this.services = services;
         stocks = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
     }
@@ -34,5 +42,15 @@ public class PipelineController {
         services.forEach((key, value) -> {
             value.unsubscribe(stocks);
         });
+    }
+
+    @PostMapping("/save")
+    public void saveStock(@RequestParam("ticker") String ticker){
+        StockEntity stockEntity = new StockEntity();
+        stockEntity.setTicker(ticker);
+        stockEntity.setFigi(figiFinder.getFigiByTicker(ticker));
+        stockEntity.setInstrumentUid(ticker);
+        stockEntity.setName(ticker);
+        stockRepository.save(stockEntity);
     }
 }

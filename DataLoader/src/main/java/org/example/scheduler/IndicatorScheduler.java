@@ -1,12 +1,11 @@
-package org.example.scheduled;
+package org.example.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.postgres.entity.CandleEntity;
 import org.example.postgres.entity.StockEntity;
-import org.example.repository.CandleRepository;
-import org.example.repository.StockRepository;
+import org.example.postgres.repository.CandleRepository;
+import org.example.postgres.repository.StockRepository;
 import org.example.service.calculatedData.interfaces.IndicatorService;
-import org.example.client.CandleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,14 +21,12 @@ import java.util.Map;
 public class IndicatorScheduler {
     private final StockRepository stockRepository;
     private final CandleRepository candleRepository;
-    private final CandleClient candleClient;
     private final Map<String, IndicatorService> indicatorServices;
 
     @Autowired
-    public IndicatorScheduler(StockRepository stockRepository, CandleRepository candleRepository, CandleClient candleClient, Map<String, IndicatorService> indicatorServices) {
+    public IndicatorScheduler(StockRepository stockRepository, CandleRepository candleRepository, Map<String, IndicatorService> indicatorServices) {
         this.stockRepository = stockRepository;
         this.candleRepository = candleRepository;
-        this.candleClient = candleClient;
         this.indicatorServices = indicatorServices;
     }
 
@@ -38,7 +35,7 @@ public class IndicatorScheduler {
     private void task(){
 
     List<StockEntity> stocks = stockRepository.getAll();
-    for (StockEntity stock : stocks) {
+        stocks.parallelStream().forEach(stock -> {
         String figi = stock.getFigi();
 
         for(var kv : indicatorServices.entrySet()){
@@ -70,8 +67,8 @@ public class IndicatorScheduler {
            }
         };
 
+    });
     }
-
-    }
-
 }
+
+

@@ -1,4 +1,4 @@
-package org.example.mapper;
+package org.example.postgres.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
