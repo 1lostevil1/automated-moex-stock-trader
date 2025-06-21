@@ -14,8 +14,44 @@ services:
     networks:
       - app-network
 
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - app-network
+    volumes:
+      - zookeeper_data:/bitnami/zookeeper
+    restart: always
+
+    # Сервис Kafka
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093" # Для внутренней коммуникации
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+    volumes:
+      - kafka_data:/bitnami/kafka
+    restart: always
+
 volumes:
   pg-volume:
+  zookeeper_data:
+  kafka_data:
 
 networks:
   app-network:
