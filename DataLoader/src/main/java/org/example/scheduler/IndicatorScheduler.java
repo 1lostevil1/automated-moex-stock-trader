@@ -32,42 +32,42 @@ public class IndicatorScheduler {
 
 
     @Scheduled(fixedDelayString = "#{scheduler.interval}")
-    private void task(){
+    private void task() {
 
-    List<StockEntity> stocks = stockRepository.getAll();
+        List<StockEntity> stocks = stockRepository.getAll();
         stocks.parallelStream().forEach(stock -> {
-        String figi = stock.getFigi();
+            String figi = stock.getFigi();
 
-        for(var kv : indicatorServices.entrySet()){
-            String name = kv.getKey();
-            IndicatorService indicatorService = indicatorServices.get(name);
-            int count = indicatorService.getCount();
+            for (var kv : indicatorServices.entrySet()) {
+                String name = kv.getKey();
+                IndicatorService indicatorService = indicatorServices.get(name);
+                int count = indicatorService.getCount();
 
-            log.info(name);
-           List<CandleEntity> dbCandles = candleRepository.getByFigiWithLimit(figi, count);
-           try {
-               double value = indicatorService.calculate(dbCandles);
-               switch (name){
-                   case "RSI": {
-                       candleRepository.updateRsi(figi, BigDecimal.valueOf(value));
-                       break;
-                   }
-                   case "MACD": {
-                       candleRepository.updateMacd(figi,BigDecimal.valueOf(value));
-                       break;
-                   }
-                   case "EMA": {
-                       candleRepository.updateEma(figi,BigDecimal.valueOf(value));
-                       break;
-                   }
-               }
+                log.info(name);
+                List<CandleEntity> dbCandles = candleRepository.getByFigiWithLimit(figi, count);
+                try {
+                    double value = indicatorService.calculate(dbCandles);
+                    switch (name) {
+                        case "RSI": {
+                            candleRepository.updateRsi(figi, BigDecimal.valueOf(value));
+                            break;
+                        }
+                        case "MACD": {
+                            candleRepository.updateMacd(figi, BigDecimal.valueOf(value));
+                            break;
+                        }
+                        case "EMA": {
+                            candleRepository.updateEma(figi, BigDecimal.valueOf(value));
+                            break;
+                        }
+                    }
 
-           } catch (IllegalArgumentException e){
-               log.info("свечек не хватило бедолаге");
-           }
-        };
+                } catch (IllegalArgumentException e) {
+                }
+            }
 
-    });
+
+        });
     }
 }
 

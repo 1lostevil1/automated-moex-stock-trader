@@ -40,7 +40,7 @@ public class StockDataRowScheduler {
             String figi = stock.getFigi();
 
             CandleEntity candle = candleRepository.getLastCandleByFigi(figi);
-            if (candle == null || candle.equals(oldCandle) ) {
+            if (candle == null || candle.equals(oldCandle)) {
                 log.info("свеча не найдена дата процессором");
                 return;
             }

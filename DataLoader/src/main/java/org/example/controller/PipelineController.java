@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.tinkoff.piapi.core.InvestApi;
 
 import java.util.List;
 import java.util.Map;
@@ -44,13 +43,17 @@ public class PipelineController {
         });
     }
 
-    @PostMapping("/save")
-    public void saveStock(@RequestParam("ticker") String ticker){
+    @PostMapping("/add")
+    public void saveStock(@RequestParam("ticker") String ticker) {
+        String figi = figiFinder.getFigiByTicker(ticker);
+
         StockEntity stockEntity = new StockEntity();
         stockEntity.setTicker(ticker);
-        stockEntity.setFigi(figiFinder.getFigiByTicker(ticker));
+        stockEntity.setFigi(figi);
         stockEntity.setInstrumentUid(ticker);
         stockEntity.setName(ticker);
+
         stockRepository.save(stockEntity);
+        stocks.add(figi);
     }
 }

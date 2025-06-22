@@ -8,6 +8,14 @@ spring:
     password: postgres
   liquibase:
     enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        retries: 3
+        retry.backoff.ms: 1000
 server:
   port: 8090
 app:

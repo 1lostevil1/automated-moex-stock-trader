@@ -50,10 +50,10 @@ public class OrderbookRepository {
 
     public List<OrderbookEntity> findByFigiAndTimeRange(String figi, OffsetDateTime from, OffsetDateTime to) {
         String sql = """
-        SELECT * FROM orderbook
-        WHERE figi = ? AND time BETWEEN ? AND ?
-        ORDER BY time ASC
-        """;
+                SELECT * FROM orderbook
+                WHERE figi = ? AND time BETWEEN ? AND ?
+                ORDER BY time ASC
+                """;
 
         return jdbcClient.sql(sql)
                 .params(
