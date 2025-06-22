@@ -1,4 +1,4 @@
-package org.example.mapper;
+package org.example.postgres.mapper;
 
 import org.example.postgres.entity.TradeEntity;
 import org.springframework.jdbc.core.RowMapper;

@@ -2,3 +2,9 @@ spring:
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/master.xml
+
+  datasource:
+    driver_class_name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:4321/TraderDB
+    username: postgres
+    password: postgres

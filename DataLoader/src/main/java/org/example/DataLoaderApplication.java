@@ -16,17 +16,9 @@ import java.util.List;
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfig.class)
 public class DataLoaderApplication {
-@Autowired
-    private InvestApi investApi;
 
     public static void main(String[] args) {
         SpringApplication.run(DataLoaderApplication.class, args);
-    }
-
-    @PostConstruct
-    public void init() {
-        System.out.println("--------");
-        System.out.println(FigiFinder.getFigiByTicker(investApi,"T"));
     }
 
 }

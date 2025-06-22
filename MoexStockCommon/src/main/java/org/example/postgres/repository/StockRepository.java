@@ -1,7 +1,7 @@
-package org.example.repository;
+package org.example.postgres.repository;
 
-import org.example.mapper.StockRowMapper;
 import org.example.postgres.entity.StockEntity;
+import org.example.postgres.mapper.StockRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
