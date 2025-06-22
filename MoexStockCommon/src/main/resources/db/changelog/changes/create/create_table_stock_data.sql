@@ -1,6 +1,7 @@
 CREATE TABLE stock_data (
                             id BIGSERIAL PRIMARY KEY,
                             figi VARCHAR(20) NOT NULL,
+                            ticker VARCHAR(20) NOT NULL,
                             instrument_uid VARCHAR(50) NOT NULL,
                             open_price NUMERIC(12,4),
                             close_price NUMERIC(12,4),

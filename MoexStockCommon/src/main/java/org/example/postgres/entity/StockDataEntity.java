@@ -18,6 +18,7 @@ public class StockDataEntity {
     private Long id;
     private String figi;
     private String instrumentUid;
+    private String ticker;
     private OffsetDateTime time;
     private BigDecimal openPrice;
     private BigDecimal closePrice;

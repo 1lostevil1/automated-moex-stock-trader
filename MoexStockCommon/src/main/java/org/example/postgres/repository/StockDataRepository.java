@@ -53,16 +53,16 @@ public class StockDataRepository {
     }
 
 
-    public List<StockDataEntity> findByFigiFromTime(String figi, OffsetDateTime from) {
+    public List<StockDataEntity> findByTickerFromTime(String ticker, OffsetDateTime from) {
         String sql = """
         SELECT * FROM stock_data
-        WHERE figi = ? AND time >= ?
+        WHERE ticker = ? AND time >= ?
         ORDER BY time ASC
         """;
 
         return jdbcClient.sql(sql)
                 .params(
-                        figi,
+                        ticker,
                         Timestamp.from(from.minusHours(3).toInstant())
                 )
                 .query(rowMapper)
