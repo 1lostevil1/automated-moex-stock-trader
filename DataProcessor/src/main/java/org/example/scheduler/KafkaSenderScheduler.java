@@ -26,10 +26,10 @@ public class KafkaSenderScheduler {
 
     @Scheduled(fixedDelayString = "#{sendScheduler.interval()}")
     public void sendDataToKafka() {
-        var figis = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
-        for (var figi : figis) {
-            var forecastRequestList = stockDataRepository.findByFigiFromTime(figi, OffsetDateTime.now().minusMinutes(5));
-            kafkaTemplate.send("forecastRequest", new ForecastRequest(figi, forecastRequestList));
+        var tickers = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
+        for (var ticker : tickers) {
+            var forecastRequestList = stockDataRepository.findByTickerFromTime(ticker, OffsetDateTime.now().minusMinutes(5));
+            kafkaTemplate.send("forecastRequest", new ForecastRequest(ticker, forecastRequestList));
         }
     }
 }

@@ -71,6 +71,7 @@ public class StockDataRowScheduler {
             StockDataEntity stockDataEntity = new StockDataEntity();
             stockDataEntity.setFigi(figi);
             stockDataEntity.setInstrumentUid(stock.getInstrumentUid());
+            stockDataEntity.setTicker(stock.getTicker());
             stockDataEntity.setTime(from);
             stockDataEntity.setOpenPrice(candle.getOpenPrice());
             stockDataEntity.setHighPrice(candle.getHighPrice());
