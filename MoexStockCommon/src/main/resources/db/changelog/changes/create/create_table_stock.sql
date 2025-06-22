@@ -9,4 +9,8 @@ CREATE TABLE stock (
 INSERT INTO stock (figi, instrument_uid, ticker, name)
 VALUES
 ('BBG004730N88', 'SBER', 'SBER', 'SBERBANK'),
-('TCS80A107UL4', 'T', 'T', 'T-BANK');;
+('BBG004731354', 'ROSN', 'ROSN', 'ROSNEFT'),
+('BBG004S68614', 'AFKS', 'AFKS', 'AFK SYSTEM'),
+('BBG004730RP0', 'GAZP', 'GAZP', 'GAZPROM'),
+('BBG000R607Y3', 'PLZL', 'PLZL', 'POLUS'),
+('TCS80A107UL4', 'T', 'T', 'T-BANK');

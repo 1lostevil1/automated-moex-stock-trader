@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.postgres.entity.StockEntity;
 import org.example.postgres.repository.StockRepository;
 import org.example.service.streamData.interfaces.DataStreamService;
@@ -10,23 +11,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Controller
+@Slf4j
 public class PipelineController {
 
     private final FigiFinder figiFinder;
     private final StockRepository stockRepository;
     private final Map<String, DataStreamService> services;
-    List<String> stocks;
+    private final List<String> stocks;
 
     @Autowired
     public PipelineController(FigiFinder figiFinder, StockRepository stockRepository1, StockRepository stockRepository, Map<String, DataStreamService> services) {
         this.figiFinder = figiFinder;
         this.stockRepository = stockRepository1;
         this.services = services;
-        stocks = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
+        stocks = new ArrayList<>(stockRepository.getAll().stream()
+                .map(StockEntity::getFigi)
+                .toList());
     }
 
     @GetMapping("/start")
@@ -44,7 +49,7 @@ public class PipelineController {
     }
 
     @PostMapping("/add")
-    public void saveStock(@RequestParam("ticker") String ticker) {
+    public String saveStock(@RequestParam("ticker") String ticker) {
         String figi = figiFinder.getFigiByTicker(ticker);
 
         StockEntity stockEntity = new StockEntity();
@@ -55,5 +60,7 @@ public class PipelineController {
 
         stockRepository.save(stockEntity);
         stocks.add(figi);
+        log.info(figi);
+        return  figi;
     }
 }
