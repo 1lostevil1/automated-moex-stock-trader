@@ -14,6 +14,7 @@
         <module>MoexStockCommon</module>
         <module>DataLoader</module>
         <module>DataProcessor</module>
+        <module>TelegramBot</module>
         <!-- Другие модули -->
     </modules>
 
@@ -28,6 +29,7 @@
         <tinkoff.sdk.version>1.5</tinkoff.sdk.version>
         <ta4j.version>0.15</ta4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java-telegram-bot-api.version>7.0.1</java-telegram-bot-api.version>
     </properties>
 
     <dependencyManagement>
@@ -71,6 +73,12 @@
                 <groupId>org.ta4j</groupId>
                 <artifactId>ta4j-core</artifactId>
                 <version>${ta4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pengrad</groupId>
+                <artifactId>java-telegram-bot-api</artifactId>
+                <version>${java-telegram-bot-api.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
