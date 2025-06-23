@@ -3,6 +3,7 @@ import pandas as pd
 from flask import Flask, jsonify
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
+from typing import Optional
 
 from ForecastService.scripts.data_processor import MLrequest, process_ml_request
 from ForecastService.scripts.model import StockPredictionModel
@@ -54,7 +55,7 @@ class MLController:
         with ThreadPoolExecutor() as executor:
             executor.map(lambda ticker: self.__retrain_single_model(ticker, folders), tickers)
 
-    def get_prediction_by_request(self, ml_req: MLrequest) -> float:
+    def get_prediction_by_request(self, ml_req: MLrequest) -> Optional[float]:
         ticker = ml_req.ticker
         inputs: list = process_ml_request(ml_req)
 
@@ -62,6 +63,7 @@ class MLController:
             all_items = os.listdir(self.__models_dir)
             folders = [item for item in all_items if os.path.isdir(os.path.join(self.__models_dir, item))]
             self.__init_single_model(ticker, folders)
+            return None
 
         return self.__models[ticker].get_prediction(inputs)
 

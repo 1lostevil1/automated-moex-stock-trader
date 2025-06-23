@@ -1,14 +1,14 @@
-﻿import pandas as pd
+﻿import os
+import pandas as pd
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt  # TODO: потом удалить
 from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger
-import os
 from sklearn.preprocessing import MinMaxScaler
-from scripts.data_processor import preprocess_data, NUM_OF_FEATS
 
-import matplotlib.pyplot as plt  # TODO: потом удалить
+from ForecastService.scripts.data_processor import preprocess_data, NUM_OF_FEATS
 
 DEFAULT_LOGS_DIR: str = f"..\\logs"
 
@@ -49,6 +49,7 @@ class StockPredictionModel:
         plt.plot(df['time'].iloc[training_data_len:], predictions, '--', color='red', label='Predicted open price')
         plt.plot(df['time'].iloc[training_data_len:], y_test, color='blue', label='Real open price')
         plt.legend()
+        plt.title(f"Open price prediction for {ticker}")
         plt.show()
 
     def load_model(self, dir_path: str) -> None:
@@ -80,13 +81,13 @@ class StockPredictionModel:
             model.fit(
                 X_train, y_train,
                 batch_size=32,
-                epochs=300, # TODO: если будет оверфиттинг, вернуть обратно 100 эпох, либо добавить EralyStopping
+                epochs=300,  # TODO: если будет оверфиттинг, вернуть обратно 100 эпох, либо добавить EarlyStopping
                 callbacks=callbacks_list
             )
 
         return model
 
-    def get_prediction(self, input: list[float]) -> float:
+    def get_prediction(self, input: list) -> float:
         input_scaled = [scaler.transform(input[:, i:i + 1]) for i, scaler in enumerate(self.__scaler_X)]
         input_scaled = np.concatenate(input_scaled, axis=1)
 

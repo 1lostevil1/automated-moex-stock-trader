@@ -1,8 +1,9 @@
 ﻿import os
-
 import psycopg2 as pg
-from json import load
 import pandas as pd
+from json import load
+
+# TODO: возможно, sql-скрипты в отдельные файлы
 
 TICKERS_SCRIPT = """
                  SELECT ticker
