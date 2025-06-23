@@ -25,15 +25,24 @@ DATA_SCRIPT = """
                      ema
               FROM stock_data
               WHERE ticker = %s
-              ORDER BY time; \
+                AND bid_volume != 0 AND ask_volume != 0
+                AND rsi IS NOT NULL
+                AND macd IS NOT NULL
+                AND ema IS NOT NULL
+              ORDER BY "time"; \
               """
 
-DEFAULT_DB_CONFIG_DIR = "../configs/db_config.json"
+DEFAULT_DB_CONFIG_DIR = f"..\\configs\\db_config.json"
 
 
 class DbConnect:
     def __init__(self, config_path: str = DEFAULT_DB_CONFIG_DIR):
-        self.__db_config: dict[str, str] = load(open(config_path, 'r'))
+        self.__db_config: dict[str, str] = dict()
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"DB config file not found: {config_path}")
+
+        with open(config_path, 'r', encoding='utf-8-sig') as file:
+            self.__db_config = load(file)
 
     def __get_cursor(self):
         try:
@@ -67,6 +76,5 @@ class DbConnect:
 
 
 if __name__ == "__main__":
-    # db_connect = DbConnect()
-    # tickers = db_connect.get_tickers()
-    print(os.listdir("../"))
+    db_connect = DbConnect()
+    tickers = db_connect.get_tickers()
