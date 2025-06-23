@@ -1,6 +1,6 @@
-package com.example.controller;
+package org.example.controller;
 
-import com.example.configuration.BotConfig;
+import org.example.configuration.BotConfig;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendMessage;

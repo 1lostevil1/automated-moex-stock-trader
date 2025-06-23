@@ -1,7 +1,7 @@
-package com.example.controller;
+package org.example.controller;
 
-import com.example.command.Command;
-import com.example.command.Start;
+import org.example.command.Command;
+import org.example.command.Start;
 import com.pengrad.telegrambot.model.Update;
 import org.example.postgres.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

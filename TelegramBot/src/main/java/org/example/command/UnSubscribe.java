@@ -1,4 +1,4 @@
-package com.example.command;
+package org.example.command;
 
 public class UnSubscribe {
 }
