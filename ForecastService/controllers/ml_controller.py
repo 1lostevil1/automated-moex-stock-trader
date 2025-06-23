@@ -1,32 +1,33 @@
-﻿import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent))
-from scripts.model import StockPredictionModel
-from scripts.db_connect import DbConnect
-import os
+﻿import os
 import pandas as pd
+from flask import Flask, jsonify
 from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 
-# TODO: сделать API для контроллера
+from ForecastService.scripts.data_processor import MLrequest, process_ml_request
+from ForecastService.scripts.model import StockPredictionModel
+from ForecastService.scripts.db_connect import DbConnect
 
 DEFAULT_MODELS_DIR = f"..\\models"
 
 
 class MLController:
     def __init__(self, models_dir: str = DEFAULT_MODELS_DIR):
-        self.models: dict[str, StockPredictionModel] = {}
+        self.__models: dict[str, StockPredictionModel] = {}
+        self.__models_lock = Lock()
         self.__dbConnect = DbConnect()
         self.__models_dir = models_dir
         self.__init_models()
 
     def __init_single_model(self, ticker: str, folders: list[str]):
+        ticker_data: pd.DataFrame = self.__dbConnect.get_data(ticker)
+        with self.__models_lock:
+            self.__models[ticker] = StockPredictionModel()
         if ticker not in folders:
-            self.models[ticker] = StockPredictionModel()
-            train_data: pd.DataFrame = self.__dbConnect.get_data(ticker)
-            self.models[ticker].init_model(ticker, train_data, self.__models_dir)
+            self.__models[ticker].init_model(ticker, ticker_data, self.__models_dir)
         else:
-            path_to_model = os.path.join(self.__models_dir, ticker)
-            self.models[ticker].load_model(path_to_model)
+            path_to_model = os.path.join(self.__models_dir, ticker, f"{ticker}_curr.keras")
+            self.__models[ticker].load_model(path_to_model)
 
     def __init_models(self):
         all_items = os.listdir(self.__models_dir)
@@ -38,11 +39,12 @@ class MLController:
 
     def __retrain_single_model(self, ticker: str, folders: list[str]):
         new_data: pd.DataFrame = self.__dbConnect.get_data(ticker)
+        with self.__models_lock:
+            self.__models[ticker] = StockPredictionModel()
         if ticker not in folders:
-            self.models[ticker] = StockPredictionModel()
-            self.models[ticker].init_model(ticker, new_data, self.__models_dir)
+            self.__models[ticker].init_model(ticker, new_data, self.__models_dir)
         else:
-            self.models[ticker].retrain_model(ticker, new_data, self.__models_dir)
+            self.__models[ticker].retrain_model(ticker, new_data, self.__models_dir)
 
     def retrain_models(self) -> None:
         all_items = os.listdir(self.__models_dir)
@@ -52,6 +54,31 @@ class MLController:
         with ThreadPoolExecutor() as executor:
             executor.map(lambda ticker: self.__retrain_single_model(ticker, folders), tickers)
 
+    def get_prediction_by_request(self, ml_req: MLrequest) -> float:
+        ticker = ml_req.ticker
+        inputs: list = process_ml_request(ml_req)
+
+        if ticker not in self.__models.keys():
+            all_items = os.listdir(self.__models_dir)
+            folders = [item for item in all_items if os.path.isdir(os.path.join(self.__models_dir, item))]
+            self.__init_single_model(ticker, folders)
+
+        return self.__models[ticker].get_prediction(inputs)
+
+
+app = Flask(__name__)
+ml_controller = MLController()
+
+
+@app.route('/api/retrain', methods=['GET'])
+def retrain_models():
+    global ml_controller
+    try:
+        ml_controller.retrain_models()
+        return jsonify({"status": "success", "message": "Models retraining started successfully"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 if __name__ == '__main__':
-    ml = MLController()
+    app.run(debug=True)
