@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import datetime
 from decimal import Decimal
 from typing import List
 from sklearn.preprocessing import MinMaxScaler
+from operator import attrgetter
 
 USED_COLUMNS = [
-    "open_price",  # TODO: оставляем всё/убираем другие метрики/убираем эту метрику
+    "open_price",
     # "close_price",
     # "high_price",
     # "low_price",
@@ -82,3 +83,27 @@ def preprocess_data(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
     x_test = np.array(x_test)
 
     return x_train, y_train, x_test, y_test
+
+
+def process_forecast_dict(fc_dict: dict) -> MLrequest:
+    ticker = fc_dict["ticker"]
+    stocks = []
+    for stock in fc_dict["stocks"]:
+        stocks.append(StockDataEntity(**stock))
+    return MLrequest(ticker, stocks)
+
+
+def process_ml_request(ml_req: MLrequest) -> list[list[float]]:
+    entity_fields = {f.name for f in fields(StockDataEntity)}
+    invalid_fields = [f for f in USED_COLUMNS if f not in entity_fields]
+
+    if invalid_fields:
+        raise ValueError(f"Invalid fields selected: {invalid_fields}")
+
+    get_values = attrgetter(*USED_COLUMNS)
+
+    return [
+        list(get_values(entity)) if len(USED_COLUMNS) > 1
+        else [get_values(entity)]
+        for entity in ml_req.stocks
+    ]
