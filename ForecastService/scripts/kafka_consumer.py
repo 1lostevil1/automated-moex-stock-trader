@@ -5,9 +5,10 @@ from model import StockPredictionModel
 
 # TODO: соединить consumer с моделью
 # TODO: соединить producer с consumer
+# TODO: Если в кафка сообщении тикер, которого нет в моделях, то обучаем новую, а сообщение игнорим
 
 TOPIC: str = "forecastRequest"
-DEFAULT_KAFKA_CONFIG_DIR = "../configs/kafka_config.json"
+DEFAULT_KAFKA_CONFIG_DIR = f"..\\configs\\kafka_config.json"
 
 
 def create_consumer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
