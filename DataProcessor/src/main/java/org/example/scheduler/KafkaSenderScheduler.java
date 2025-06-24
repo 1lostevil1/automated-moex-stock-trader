@@ -1,6 +1,8 @@
 package org.example.scheduler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.message.ForecastRequest;
+import org.example.postgres.entity.StockDataEntity;
 import org.example.postgres.entity.StockEntity;
 import org.example.postgres.repository.StockDataRepository;
 import org.example.postgres.repository.StockRepository;
@@ -10,8 +12,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @Service
+@Slf4j
 public class KafkaSenderScheduler {
     private final KafkaTemplate<String, ForecastRequest> kafkaTemplate;
     private final StockDataRepository stockDataRepository;
@@ -26,10 +31,42 @@ public class KafkaSenderScheduler {
 
     @Scheduled(fixedDelayString = "#{sendScheduler.interval()}")
     public void sendDataToKafka() {
-        var tickers = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
-        for (var ticker : tickers) {
-            var forecastRequestList = stockDataRepository.findByTickerFromTime(ticker, OffsetDateTime.now().minusMinutes(5));
-            kafkaTemplate.send("forecastRequest", new ForecastRequest(ticker, forecastRequestList));
+        Queue<String> tickerQueue = new LinkedList<>(stockRepository.getAll().stream()
+                .map(StockEntity::getTicker)
+                .toList());
+
+        Map<String, Integer> retryCount = new HashMap<>();
+        final int MAX_RETRIES = 30000;
+
+        while (!tickerQueue.isEmpty()) {
+            String ticker = tickerQueue.poll();
+            OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(10).minusSeconds(1);
+            List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
+                    time);
+            log.info(String.valueOf(time));
+
+            boolean hasNullIndicators = forecastRequestList.stream()
+                    .anyMatch(data -> data.getRsi() == null || data.getMacd() == null || data.getEma() == null);
+
+            if (hasNullIndicators) {
+                int count = retryCount.getOrDefault(ticker, 0);
+                if (count < MAX_RETRIES) {
+                    retryCount.put(ticker, count + 1);
+                    tickerQueue.offer(ticker); // возвращаем тикер в очередь
+                    log.info("Retrying ticker {} (attempt {}) due to null indicators", ticker, count + 1);
+                } else {
+                    log.warn("Max retries reached for ticker {}. Skipping.", ticker);
+                }
+            } else {
+                if(forecastRequestList.size()<10) {
+                    log.info("мало данных для предсказания");
+                    return;
+                }
+                ForecastRequest forecastRequest = new ForecastRequest(ticker, forecastRequestList);
+                log.info(forecastRequest.toString());
+                kafkaTemplate.send("forecastRequest", forecastRequest);
+
+            }
         }
     }
 }

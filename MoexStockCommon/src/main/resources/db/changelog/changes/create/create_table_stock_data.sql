@@ -18,4 +18,6 @@ CREATE TABLE stock_data (
                             time TIMESTAMP NOT NULL
 );
 
+ALTER TABLE stock_data ADD CONSTRAINT unique_ticker_time UNIQUE (ticker, time);
+
 CREATE INDEX idx_data_figi_time ON stock_data (figi, time);

@@ -21,7 +21,7 @@ server:
 app:
   aggregateScheduler:
     enable: true
-    interval: 1m
+    interval: 20s
   sendScheduler:
     enable: true
-    interval: 5m
+    interval: 1m
