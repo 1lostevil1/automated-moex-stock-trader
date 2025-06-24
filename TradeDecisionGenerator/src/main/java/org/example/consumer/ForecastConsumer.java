@@ -24,7 +24,7 @@ public class ForecastConsumer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "forecastRequest", groupId = "tradeGroup")
+    @KafkaListener(topics = "forecastResponse", groupId = "tradeGroup")
     public void listen(ForecastResponse forecastResponse) {
         try {
 
