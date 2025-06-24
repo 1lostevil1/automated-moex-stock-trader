@@ -1,11 +1,11 @@
 package org.example.consumer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.message.ForecastResponse;
 import org.example.postgres.entity.TradeDecisionEntity;
 import org.example.service.TradeDecisionService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +23,7 @@ public class ForecastConsumer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = "forecastResponse", groupId = "forecastGroup")
+    @KafkaListener(topics = "forecastRequest", groupId = "tradeGroup")
     public void listen(String message) {
         try {
             ForecastResponse forecastResponse = objectMapper.readValue(message, ForecastResponse.class);

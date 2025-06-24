@@ -4,13 +4,10 @@ import org.example.message.ForecastResponse;
 import org.example.postgres.entity.TradeDecisionDirection;
 import org.example.postgres.entity.TradeDecisionEntity;
 import org.example.postgres.repository.TradeDecisionRepository;
-import org.example.service.lastPrice.LastPriceCacheService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TradeDecisionService {
@@ -18,8 +15,6 @@ public class TradeDecisionService {
     private final LastPriceCacheService lastPriceCache;
     private final TradeDecisionRepository tradeDecisionRepository;
 
-    // Кэш предыдущих решений по тикерам
-    private final Map<String, TradeDecisionEntity> previousDecisions = new ConcurrentHashMap<>();
 
     public TradeDecisionService(LastPriceCacheService lastPriceCache, TradeDecisionRepository tradeDecisionRepository) {
         this.lastPriceCache = lastPriceCache;
@@ -36,12 +31,9 @@ public class TradeDecisionService {
         }
         BigDecimal lastPrice = BigDecimal.valueOf(lastPriceDouble);
 
-        TradeDecisionEntity prevDecision = previousDecisions.get(ticker);
+        TradeDecisionEntity prevDecision = tradeDecisionRepository.findByTicker(ticker);
         if (prevDecision == null) {
             prevDecision = tradeDecisionRepository.findByTicker(ticker);
-            if (prevDecision != null) {
-                previousDecisions.put(ticker, prevDecision);
-            }
         }
 
         TradeDecisionDirection newDirection;
@@ -124,7 +116,6 @@ public class TradeDecisionService {
                 .createdAt(OffsetDateTime.now())
                 .build();
 
-        previousDecisions.put(ticker, decision);
         tradeDecisionRepository.save(decision);
 
         return decision;

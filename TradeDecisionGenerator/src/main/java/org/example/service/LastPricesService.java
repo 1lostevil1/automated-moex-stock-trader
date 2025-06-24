@@ -1,8 +1,8 @@
-package org.example.service.streamData.impl;
+package org.example.service;
 
-import org.example.config.InvestApiConfig;
-import org.example.service.streamData.interfaces.DataStreamService;
-import org.example.util.finder.FigiFinder;
+import org.example.config.LastPriceConfig;
+import org.example.postgres.entity.StockEntity;
+import org.example.postgres.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -14,34 +14,35 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Service
-public class LastPricesService implements DataStreamService {
+public class LastPricesService {
 
     private static final String STREAM_ID = "last_prices_stream";
     private final InvestApi investApi;
     private final StreamProcessor<MarketDataResponse> processor;
     private final Consumer<Throwable> errorHandler;
+    private final StockRepository stockRepository;
 
     @Autowired
     public LastPricesService(
             InvestApi investApi,
-            @Qualifier(InvestApiConfig.LAST_PRICE) StreamProcessor<MarketDataResponse> processor,
-            Consumer<Throwable> errorHandler
+            @Qualifier(LastPriceConfig.LAST_PRICE) StreamProcessor<MarketDataResponse> processor,
+            Consumer<Throwable> errorHandler, StockRepository stockRepository
     ) {
         this.investApi = investApi;
         this.processor = processor;
         this.errorHandler = errorHandler;
+        this.stockRepository = stockRepository;
+
+        List<String> figi = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
+        subscribe(figi);
     }
 
     public void subscribe(List<String> figi) {
 
+        System.out.println(figi);
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID, processor, errorHandler)
                 .subscribeLastPrices(figi);
     }
 
-    public void unsubscribe(List<String> figi) {
-        investApi.getMarketDataStreamService()
-                .getStreamById(STREAM_ID)
-                .unsubscribeLastPrices(figi);
-    }
 }
