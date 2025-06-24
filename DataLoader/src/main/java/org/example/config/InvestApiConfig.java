@@ -3,9 +3,11 @@ package org.example.config;
 import org.example.postgres.repository.CandleRepository;
 import org.example.postgres.repository.OrderbookRepository;
 import org.example.postgres.repository.TradeRepository;
+import org.example.service.lastPrice.LastPriceCacheService;
 import org.example.util.dtoMapper.CandleMapper;
 import org.example.util.dtoMapper.OrderbookMapper;
 import org.example.util.dtoMapper.TradeMapper;
+import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +30,7 @@ public class InvestApiConfig {
     private final CandleRepository candleRepository;
     private final OrderbookRepository orderbookRepository;
     private final TradeRepository tradeRepository;
+    private final LastPriceCacheService lastPriceCacheService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     public static final String CANDLE = "candleService";
@@ -36,11 +39,12 @@ public class InvestApiConfig {
     public static final String LAST_PRICE = "lastPriceService";
 
     @Autowired
-    public InvestApiConfig(ApplicationConfig applicationConfig, CandleRepository candleRepository, OrderbookRepository orderbookRepository, TradeRepository tradeRepository) {
+    public InvestApiConfig(ApplicationConfig applicationConfig, CandleRepository candleRepository, OrderbookRepository orderbookRepository, TradeRepository tradeRepository, LastPriceCacheService lastPriceCacheService) {
         this.applicationConfig = applicationConfig;
         this.candleRepository = candleRepository;
         this.orderbookRepository = orderbookRepository;
         this.tradeRepository = tradeRepository;
+        this.lastPriceCacheService = lastPriceCacheService;
     }
 
     @Bean
@@ -93,6 +97,11 @@ public class InvestApiConfig {
     public StreamProcessor<MarketDataResponse> lastPriceStreamProcessor() {
         return response -> {
             if (response.hasLastPrice()) {
+                String figi = response.getLastPrice().getFigi();
+                var lastPrice = response.getLastPrice().getPrice();
+
+                double price = lastPrice.getUnits() + lastPrice.getNano()/1000000000.0;
+                lastPriceCacheService.updateLastPrice(figi, price);
             }
         };
     }
