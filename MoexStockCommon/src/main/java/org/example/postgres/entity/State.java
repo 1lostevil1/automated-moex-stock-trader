@@ -2,5 +2,7 @@ package org.example.postgres.entity;
 
 public enum State {
     NONE,
-    WAIT_ANSWER
+    SUBSCRIBE_TICKER,
+    UNSUBSCRIBE_TICKER,
+    WAIT_TOKEN
 }

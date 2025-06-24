@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public class UserRepository {
@@ -16,24 +18,26 @@ public class UserRepository {
     }
 
     public void save(UserEntity user){
-        String sql = "INSERT INTO tg_user (tgid,username) " +
-                "VALUES (?, ?)";
-        jdbcClient.sql(sql).params(user.getId(),user.getUserName()).update();
+        String sql = "INSERT INTO tg_user (tgid,username,state) " +
+                "VALUES (?, ?, ?)";
+        jdbcClient.sql(sql).params(user.getId(),user.getUserName(),"NONE").update();
     };
 
     public void setState(Long id, State state){
-        String sql = "UPDATE user SET state = ? WHERE tgid = ?";
+        String sql = "UPDATE tg_user SET state = ? WHERE tgid = ?";
         jdbcClient.sql(sql).params(state.name(),id).update();
     };
 
-    public String getState(Long id, State state){
-        String sql = "SELECT state FROM user WHERE tgid = ?";
-        var rs = jdbcClient.sql(sql).params(id).query();
-        return rs.rowSet().getString("state");
+    public Optional<String> getState(Long id){
+        String sql = "SELECT state FROM tg_user WHERE tgid = ?";
+        var rs = jdbcClient.sql(sql).params(id).query().rowSet();
+        if(rs.next())
+            return Optional.of(rs.getString("state"));
+        return Optional.empty();
     };
 
     public void register(Long id,String token){
-        String sql = "UPDATE user SET token = ? WHERE tgid = ?";
+        String sql = "UPDATE tg_user SET token = ? WHERE tgid = ?";
         jdbcClient.sql(sql).params(token,id).update();
     };
 
