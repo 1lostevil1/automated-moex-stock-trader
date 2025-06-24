@@ -3,8 +3,6 @@ import psycopg2 as pg
 import pandas as pd
 from json import load
 
-# TODO: возможно, sql-скрипты в отдельные файлы
-
 TICKERS_SCRIPT = """
                  SELECT ticker
                  FROM stock; \
@@ -30,10 +28,11 @@ DATA_SCRIPT = """
                 AND rsi IS NOT NULL
                 AND macd IS NOT NULL
                 AND ema IS NOT NULL
+                AND EXTRACT(DAY FROM "time") = 23 -- TODO: потом удалить
               ORDER BY "time"; \
               """
 
-DEFAULT_DB_CONFIG_DIR = f"..\\configs\\db_config.json"
+DEFAULT_DB_CONFIG_DIR: str = f"..\\configs\\db_config.json"
 
 
 class DbConnect:

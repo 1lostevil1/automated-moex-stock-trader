@@ -5,11 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import Optional
 
-from ForecastService.scripts.data_processor import MLrequest, process_ml_request
-from ForecastService.scripts.model import StockPredictionModel
-from ForecastService.scripts.db_connect import DbConnect
+from ForecastService.modules.data_processor import MLrequest, process_ml_request
+from ForecastService.entities.StockPredictionModel import StockPredictionModel
+from ForecastService.entities.DbConnect import DbConnect
 
-DEFAULT_MODELS_DIR = f"..\\models"
+DEFAULT_MODELS_DIR: str = f"..\\models"
 
 
 class MLController:
@@ -17,7 +17,7 @@ class MLController:
         self.__models: dict[str, StockPredictionModel] = {}
         self.__models_lock = Lock()
         self.__dbConnect = DbConnect()
-        self.__models_dir = models_dir
+        self.__models_dir: str = models_dir
         self.__init_models()
 
     def __init_single_model(self, ticker: str, folders: list[str]):
@@ -37,6 +37,8 @@ class MLController:
 
         with ThreadPoolExecutor() as executor:
             executor.map(lambda ticker: self.__init_single_model(ticker, folders), tickers)
+
+        print('Models have been initialized!')
 
     def __retrain_single_model(self, ticker: str, folders: list[str]):
         new_data: pd.DataFrame = self.__dbConnect.get_data(ticker)
@@ -80,7 +82,3 @@ def retrain_models():
         return jsonify({"status": "success", "message": "Models retraining started successfully"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

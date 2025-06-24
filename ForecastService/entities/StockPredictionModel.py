@@ -1,22 +1,26 @@
 ﻿import os
+
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
 import pandas as pd
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt  # TODO: потом удалить
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import Input, LSTM, Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger
 from sklearn.preprocessing import MinMaxScaler
 
-from ForecastService.scripts.data_processor import preprocess_data, NUM_OF_FEATS
+from ForecastService.modules.data_processor import preprocess_data, NUM_OF_FEATS
 
 DEFAULT_LOGS_DIR: str = f"..\\logs"
 
 
 def create_model(X_train) -> "Sequential":
     model = Sequential()
-    model.add(
-        LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Input(input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(LSTM(100, return_sequences=True))
     model.add(LSTM(100, return_sequences=False))
     model.add(Dense(50))
     model.add(Dense(1))
@@ -46,10 +50,10 @@ class StockPredictionModel:
         # TODO: эту часть потом удалить
         predictions = self.model_in_use.predict(X_test)
         predictions = self.__scaler_Y.inverse_transform(predictions)
-        plt.plot(df['time'].iloc[training_data_len:], predictions, '--', color='red', label='Predicted open price')
-        plt.plot(df['time'].iloc[training_data_len:], y_test, color='blue', label='Real open price')
+        plt.plot(df['time'].iloc[training_data_len:], predictions, '--', color='red', label='Predicted close price')
+        plt.plot(df['time'].iloc[training_data_len:], y_test, color='blue', label='Real close price')
         plt.legend()
-        plt.title(f"Open price prediction for {ticker}")
+        plt.title(f"Close price prediction for {ticker}")
         plt.show()
 
     def load_model(self, dir_path: str) -> None:
@@ -69,7 +73,7 @@ class StockPredictionModel:
                                            save_best_only=True,
                                            save_weights_only=False,
                                            monitor='val_loss')
-        tensorboard = TensorBoard(log_dir=DEFAULT_LOGS_DIR)
+        tensorboard = TensorBoard(log_dir=DEFAULT_LOGS_DIR + f"\\{ticker}")
         csv_logger = CSVLogger(f'{log_path}/{ticker}_training_log.csv')
         callbacks_list = [
             model_checkpoint,

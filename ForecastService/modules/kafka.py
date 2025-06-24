@@ -4,10 +4,10 @@ from confluent_kafka import Consumer, Producer, KafkaException
 from typing import Optional
 
 from ForecastService.controllers.ml_controller import MLController
-from ForecastService.scripts.data_processor import process_forecast_dict, MLrequest
+from ForecastService.modules.data_processor import process_forecast_dict, MLrequest
 
 TOPIC: str = "forecastRequest"
-DEFAULT_KAFKA_CONFIG_DIR = f"..\\configs\\kafka_config.json"
+DEFAULT_KAFKA_CONFIG_DIR: str = f"..\\configs\\kafka_config.json"
 
 
 def create_consumer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
@@ -19,6 +19,7 @@ def create_consumer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
         "group.id": kafka_config["group.id"],  # Идентификатор группы потребителей
         "auto.offset.reset": kafka_config["auto.offset.reset"],  # Начинать чтение с начала топика
         "enable.auto.commit": False,  # Отключить авто-коммит оффсетов
+        "security.protocol": "PLAINTEXT"
     }
 
     consumer = Consumer(conf)
@@ -52,6 +53,7 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
             try:
                 value = msg.value().decode('utf-8') if msg.value() else None
                 value_parsed: dict = loads(value)
+                print(value_parsed)
 
                 reply_topic = value_parsed.get("reply_topic")
                 correlation_id = value_parsed.get("correlation_id")
@@ -82,10 +84,3 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
     finally:
         producer.flush()
         consumer.close()
-
-
-if __name__ == "__main__":
-    consume = create_consumer()
-    produce = create_producer()
-    ml = MLController()
-    consume_messages(consume, produce, ml)

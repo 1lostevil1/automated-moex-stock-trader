@@ -8,8 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 from operator import attrgetter
 
 USED_COLUMNS = [
-    "open_price",
-    # "close_price",
+    "close_price",
+    # "open_price",
     # "high_price",
     # "low_price",
     # "volume",
@@ -21,7 +21,7 @@ USED_COLUMNS = [
     # "macd",
     # "ema"
 ]
-TARGET_COLUMN = "open_price"
+TARGET_COLUMN = "close_price"
 NUM_OF_FEATS: int = len(USED_COLUMNS)
 
 
