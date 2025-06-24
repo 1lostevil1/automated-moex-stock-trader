@@ -40,7 +40,7 @@ public class KafkaSenderScheduler {
 
         while (!tickerQueue.isEmpty()) {
             String ticker = tickerQueue.poll();
-            OffsetDateTime time = OffsetDateTime.now().minusHours(30).minusMinutes(10).minusSeconds(1);
+            OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(10).minusSeconds(1);
             List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
                     time);
             log.info(String.valueOf(time));
