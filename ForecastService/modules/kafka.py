@@ -6,7 +6,8 @@ from typing import Optional
 from ForecastService.controllers.ml_controller import MLController
 from ForecastService.modules.data_processor import process_forecast_dict, MLrequest
 
-TOPIC: str = "forecastRequest"
+REQUEST_TOPIC: str = "forecastRequest"
+RESPONSE_TOPIC: str = "forecastResponse"
 DEFAULT_KAFKA_CONFIG_DIR: str = f"..\\configs\\kafka_config.json"
 
 
@@ -19,7 +20,6 @@ def create_consumer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
         "group.id": kafka_config["group.id"],  # Идентификатор группы потребителей
         "auto.offset.reset": kafka_config["auto.offset.reset"],  # Начинать чтение с начала топика
         "enable.auto.commit": False,  # Отключить авто-коммит оффсетов
-        "security.protocol": "PLAINTEXT"
     }
 
     consumer = Consumer(conf)
@@ -35,11 +35,12 @@ def create_producer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
 
 
 def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
-                     ml: MLController, topic: str = TOPIC) -> None:
+                     ml: MLController, topic: str = REQUEST_TOPIC) -> None:
     try:
         consumer.subscribe([topic])
         while True:
-            msg = consumer.poll(1.0)
+            msg = consumer.poll()
+            consumer.commit(asynchronous=True)
 
             if msg is None:
                 continue
@@ -55,32 +56,26 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
                 value_parsed: dict = loads(value)
                 print(value_parsed)
 
-                reply_topic = value_parsed.get("reply_topic")
-                correlation_id = value_parsed.get("correlation_id")
+                reply_topic = RESPONSE_TOPIC
+                # correlation_id = value_parsed.get("correlation_id")
 
                 ml_req: MLrequest = process_forecast_dict(value_parsed)
 
                 prediction: Optional[float] = ml.get_prediction_by_request(ml_req)
 
-                if reply_topic and correlation_id and prediction is not None:
-                    response = {
-                        "correlation_id": correlation_id,
-                        "prediction": prediction
-                    }
+                if prediction is not None:
+                    response = prediction
                     producer.produce(
                         topic=reply_topic,
                         value=dumps(response),
-                        key=str(correlation_id)
                     )
-                    print(f"Отправлен прогноз в топик {reply_topic}, ID: {correlation_id}")
-
-                consumer.commit(asynchronous=False)
-
+                    print(f"Отправлен прогноз в топик {reply_topic})")
             except Exception as e:
                 print(f"Ошибка обработки сообщения: {e}")
-
     except KeyboardInterrupt:
         print("Остановка consumer-а")
+    except Exception as e:
+        print(f"Ошибка обработки сообщения: {e}")
     finally:
         producer.flush()
         consumer.close()
