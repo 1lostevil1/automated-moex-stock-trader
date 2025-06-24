@@ -14,6 +14,7 @@
         <module>MoexStockCommon</module>
         <module>DataLoader</module>
         <module>DataProcessor</module>
+        <module>delIt</module>
         <!-- Другие модули -->
     </modules>
 

@@ -110,5 +110,13 @@ public class CandleRepository {
                 .optional()
                 .orElse(null);
     }
+
+    public List<CandleEntity> getByFigi(String figi) {
+        String sql = "SELECT * FROM candle WHERE figi = ? ORDER BY time";
+        return jdbcClient.sql(sql)
+                .params(figi)
+                .query(rowMapper)
+                .list();
+    }
 }
 
