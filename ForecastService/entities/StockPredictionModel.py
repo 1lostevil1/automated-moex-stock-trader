@@ -3,6 +3,7 @@
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
+import joblib
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -19,7 +20,7 @@ DEFAULT_LOGS_DIR: str = f"..\\logs"
 
 def create_model(X_train) -> "Sequential":
     model = Sequential()
-    model.add(Input(input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Input(shape=(X_train.shape[1], X_train.shape[2])))
     model.add(LSTM(100, return_sequences=True))
     model.add(LSTM(100, return_sequences=False))
     model.add(Dense(50))
@@ -37,6 +38,17 @@ class StockPredictionModel:
         self.model_in_use = self.__model_curr
         self.output_features = output_features
 
+    def __save_scalers(self, model_path: str) -> None:
+        os.makedirs(f'{model_path}\\scalers')
+        for i in range(len(self.__scaler_X)):
+            joblib.dump(self.__scaler_X[i], f'{model_path}\\scalers\\scaler_X_{i}.save')
+        joblib.dump(self.__scaler_X, f'{model_path}\\scalers\\scaler_Y.save')
+
+    def __load_scalers(self, dir_path: str) -> None:
+        for i in range(len(self.__scaler_X)):
+            self.__scaler_X[i] = joblib.load(f'{dir_path}\\..\\scalers\\scaler_X_{i}.save')
+        self.__scaler_Y = joblib.load(f'{dir_path}\\..\\scalers\\scaler_Y.save')[0]
+
     def init_model(self, ticker: str, df: "pd.DataFrame", dir_path: str):
         training_data_len = int(len(df) * 0.8)
         model_path = os.path.join(dir_path, ticker)
@@ -45,7 +57,8 @@ class StockPredictionModel:
 
         self.__model_curr = self.train_model(X_train, y_train, ticker, model_path)
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr
-        self.__model_curr.save(f'{model_path}/{ticker}_prev.keras')
+        self.__model_curr.save(f'{model_path}\\{ticker}_prev.keras')
+        self.__save_scalers(model_path)
 
         # TODO: эту часть потом удалить
         predictions = self.model_in_use.predict(X_test)
@@ -59,6 +72,7 @@ class StockPredictionModel:
     def load_model(self, dir_path: str) -> None:
         self.__model_curr = tf.keras.models.load_model(dir_path)
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr
+        self.__load_scalers(dir_path)
 
     def train_model(self, X_train, y_train, ticker: str, model_path: str,
                     log_path: str = DEFAULT_LOGS_DIR) -> "Sequential":
@@ -92,17 +106,15 @@ class StockPredictionModel:
         return model
 
     def get_prediction(self, input: list) -> float:
-        input_scaled = [scaler.transform(input[:, i:i + 1]) for i, scaler in enumerate(self.__scaler_X)]
+        input_array = np.array(input)
+
+        input_scaled = [scaler.transform(input_array[:, i:i + 1]) for i, scaler in enumerate(self.__scaler_X)]
         input_scaled = np.concatenate(input_scaled, axis=1)
 
-        X_test = []
-        X_test.append(input_scaled)
-        X_test = np.array(X_test)
-        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], X_test.shape[2]))
+        X_test = np.expand_dims(input_scaled, axis=0)
 
         prediction = self.model_in_use.predict(X_test)
         prediction = self.__scaler_Y.inverse_transform(prediction)[0][0]
-
         return prediction
 
     def retrain_model(self, ticker: str, df: "pd.DataFrame", dir_path: str) -> None:
@@ -113,3 +125,4 @@ class StockPredictionModel:
         self.__model_curr = self.train_model(X_train, y_train, ticker, model_path)
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr
         self.__model_curr.save(f'{model_path}/{ticker}_prev.keras')
+        self.__save_scalers(model_path)
