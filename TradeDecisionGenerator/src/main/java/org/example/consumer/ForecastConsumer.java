@@ -14,7 +14,6 @@ public class ForecastConsumer {
 
     private final TradeDecisionService tradeDecisionService;
     private final KafkaTemplate<String, TradeDecisionEntity> kafkaTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String TRADE_DECISION_TOPIC = "tradeRequest";
 
