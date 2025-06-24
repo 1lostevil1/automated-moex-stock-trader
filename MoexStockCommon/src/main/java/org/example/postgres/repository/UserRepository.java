@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -50,5 +51,10 @@ public class UserRepository {
     public void unsubscribe(Long id,String ticker){
         String sql = "DELETE FROM user_stock WHERE tgid = ? AND tiсker = ? ";
         jdbcClient.sql(sql).params(id,ticker).update();
+    };
+
+    public List<Long> getUsers(String ticker){
+        String sql = "SELECT tgid FROM user_stock WHERE tiсker = ? ";
+        return jdbcClient.sql(sql).params(ticker).query((rs,rowNumber)-> rs.getLong("tgid")).stream().toList();
     };
 }
