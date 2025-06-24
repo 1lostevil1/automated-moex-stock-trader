@@ -14,5 +14,5 @@ app:
   token: "t.rNoz7VuY6Obq4WttMikAopqywLLeVzQOzOh4YI0EXdHYyHPcdaT5Aug24DGHmXUpUVrzafRZuyhL6Ks-Cqs6DA"
   scheduler:
     enable: true
-    interval: 20s
+    interval: 5s
 

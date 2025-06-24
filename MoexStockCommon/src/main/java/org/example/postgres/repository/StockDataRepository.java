@@ -1,6 +1,6 @@
 package org.example.postgres.repository;
 
-import org.example.message.ForecastRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.example.postgres.entity.StockDataEntity;
 import org.example.postgres.mapper.StockDataRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
+@Slf4j
 public class StockDataRepository {
 
     private final JdbcClient jdbcClient;
@@ -25,17 +26,33 @@ public class StockDataRepository {
 
     public void save(StockDataEntity entity) {
         String sql = """
-                INSERT INTO stock_data (
-                    figi, instrument_uid, time,
-                    open_price, close_price, high_price, low_price,
-                    volume, bid_volume, ask_volume, buy_volume, sell_volume,
-                    rsi, macd, ema
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+        INSERT INTO stock_data (
+            figi, instrument_uid, ticker, time,
+            open_price, close_price, high_price, low_price,
+            volume, bid_volume, ask_volume, buy_volume, sell_volume,
+            rsi, macd, ema
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (ticker, time) DO UPDATE SET
+            figi = EXCLUDED.figi,
+            instrument_uid = EXCLUDED.instrument_uid,
+            open_price = EXCLUDED.open_price,
+            close_price = EXCLUDED.close_price,
+            high_price = EXCLUDED.high_price,
+            low_price = EXCLUDED.low_price,
+            volume = EXCLUDED.volume,
+            bid_volume = EXCLUDED.bid_volume,
+            ask_volume = EXCLUDED.ask_volume,
+            buy_volume = EXCLUDED.buy_volume,
+            sell_volume = EXCLUDED.sell_volume,
+            rsi = EXCLUDED.rsi,
+            macd = EXCLUDED.macd,
+            ema = EXCLUDED.ema
+        """;
 
         jdbcClient.sql(sql).params(
                 entity.getFigi(),
                 entity.getInstrumentUid(),
+                entity.getTicker(),
                 Timestamp.from(entity.getTime().toInstant()),
                 entity.getOpenPrice(),
                 entity.getClosePrice(),
@@ -55,15 +72,18 @@ public class StockDataRepository {
 
     public List<StockDataEntity> findByTickerFromTime(String ticker, OffsetDateTime from) {
         String sql = """
-        SELECT * FROM stock_data
-        WHERE ticker = ? AND time >= ?
-        ORDER BY time ASC
-        """;
+                SELECT * FROM stock_data
+                WHERE ticker = ? AND time >= ?
+                ORDER BY time ASC
+                """;
 
+
+        Timestamp time = Timestamp.from(from.toInstant());
+        log.info(String.valueOf(time));
         return jdbcClient.sql(sql)
                 .params(
                         ticker,
-                        Timestamp.from(from.minusHours(3).toInstant())
+                        Timestamp.from(from.toInstant())
                 )
                 .query(rowMapper)
                 .list();
