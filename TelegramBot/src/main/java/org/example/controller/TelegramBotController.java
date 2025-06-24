@@ -27,14 +27,16 @@ public class TelegramBotController{
     public void run() {
         bot.setUpdatesListener(updates -> {
                     updates.forEach(update -> {
-                        bot.execute(handler.handle(update));
+                        for(var action: handler.handle(update)) {
+                            bot.execute(action);
+                        }
                     });
                     return UpdatesListener.CONFIRMED_UPDATES_ALL;
                 }
         );
     }
 
-    public void sendUpdate(SendMessage message) {
+    public void sendNotification(SendMessage message) {
         bot.execute(message);
     }
 
