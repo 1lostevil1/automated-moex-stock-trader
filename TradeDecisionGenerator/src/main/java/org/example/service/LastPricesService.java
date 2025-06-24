@@ -26,19 +26,18 @@ public class LastPricesService {
     public LastPricesService(
             InvestApi investApi,
             @Qualifier(LastPriceConfig.LAST_PRICE) StreamProcessor<MarketDataResponse> processor,
-            Consumer<Throwable> errorHandler, StockRepository stockRepository
+            Consumer<Throwable> errorHandler, StockRepository stockRepository, StockRepository stockRepository1
     ) {
         this.investApi = investApi;
         this.processor = processor;
         this.errorHandler = errorHandler;
-        this.stockRepository = stockRepository;
+        this.stockRepository = stockRepository1;
 
-        List<String> figi = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
-        subscribe(figi);
     }
 
-    public void subscribe(List<String> figi) {
+    public void subscribe() {
 
+        List<String> figi = stockRepository.getAll().stream().map(StockEntity::getFigi).toList();
         System.out.println(figi);
         investApi.getMarketDataStreamService()
                 .newStream(STREAM_ID, processor, errorHandler)

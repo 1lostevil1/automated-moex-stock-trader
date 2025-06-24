@@ -16,12 +16,14 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         retries: 3
         retry.backoff.ms: 1000
+app:
+  token: "t.rNoz7VuY6Obq4WttMikAopqywLLeVzQOzOh4YI0EXdHYyHPcdaT5Aug24DGHmXUpUVrzafRZuyhL6Ks-Cqs6DA"
 server:
   port: 8008

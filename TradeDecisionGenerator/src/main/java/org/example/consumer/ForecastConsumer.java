@@ -1,6 +1,7 @@
 package org.example.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.message.ForecastRequest;
 import org.example.message.ForecastResponse;
 import org.example.postgres.entity.TradeDecisionEntity;
 import org.example.service.TradeDecisionService;
@@ -24,14 +25,13 @@ public class ForecastConsumer {
     }
 
     @KafkaListener(topics = "forecastRequest", groupId = "tradeGroup")
-    public void listen(String message) {
+    public void listen(ForecastResponse forecastResponse) {
         try {
-            ForecastResponse forecastResponse = objectMapper.readValue(message, ForecastResponse.class);
 
             TradeDecisionEntity tradeDecision = tradeDecisionService.makeDecision(forecastResponse);
 
             if (tradeDecision != null) {
-                kafkaTemplate.send(TRADE_DECISION_TOPIC, tradeDecision.getTicker(), tradeDecision);
+                kafkaTemplate.send(TRADE_DECISION_TOPIC,tradeDecision);
             }
         } catch (Exception e) {
             // Логирование ошибки
