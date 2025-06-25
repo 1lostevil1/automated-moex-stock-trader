@@ -27,12 +27,12 @@ public class CommandHandler {
         );
     }
 
-    public List<BaseRequest<?, ? extends BaseResponse>> handle(Update update) {
+    public SendMessage handle(Update update) {
         Long id = update.message().chat().id();
         return executeCommand(update);
     }
 
-    public List<BaseRequest<?, ? extends BaseResponse>> executeCommand(Update update) {
+    public SendMessage executeCommand(Update update) {
         Long id = update.message().chat().id();
         String message = update.message().text();
         Command command = null;
@@ -42,7 +42,7 @@ public class CommandHandler {
         if (command != null) {
             return command.apply(update,repository);
         }
-        return List.of(new SendMessage(id, "неверная команда!"));
+        return new SendMessage(id, "неверная команда!");
     }
 
 }

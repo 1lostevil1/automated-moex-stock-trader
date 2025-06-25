@@ -9,5 +9,5 @@ import org.example.postgres.repository.UserRepository;
 import java.util.List;
 
 public interface Command {
-    List<BaseRequest<?, ? extends BaseResponse>> apply(Update update, UserRepository repository);
+    SendMessage apply(Update update, UserRepository repository);
 }

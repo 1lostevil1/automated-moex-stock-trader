@@ -43,7 +43,7 @@ public class UserRepository {
     };
 
     public void update(UserEntity user){
-        String sql = "UPDATE traders_user SET username = ?, password = ?, telegram_id = ?, telegram_name = ?, invest_api_token = ? WHERE id = ?)";
+        String sql = "UPDATE traders_user SET username = ?, password = ?, telegram_id = ?, telegram_name = ?, invest_api_token = ? WHERE id = ?";
         jdbcClient.sql(sql).params(
                 user.getUsername(),
                 user.getPassword(),
