@@ -19,5 +19,9 @@ public class KafkaConfig {
     public NewTopic tradeRequestTopic() {
         return new NewTopic("tradeRequest", 3, (short) 1);
     }
+    @Bean(name = "TradeResponse")
+    public NewTopic tradeResponseTopic() {
+        return new NewTopic("tradeResponse", 3, (short) 1);
+    }
 
 }

@@ -24,7 +24,7 @@ public class TradeDecisionRepository {
         String sql = """
             INSERT INTO trade_decision (
                 ticker, price, stop_loss, take_profit, direction, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?::trade_decision_direction, ?)
             ON CONFLICT (ticker) DO UPDATE SET
                 price = EXCLUDED.price,
                 stop_loss = EXCLUDED.stop_loss,
@@ -45,6 +45,6 @@ public class TradeDecisionRepository {
 
     public TradeDecisionEntity findByTicker(String ticker) {
         String sql = "SELECT * FROM trade_decision WHERE ticker = ?";
-        return jdbcClient.sql(sql).params(ticker).query(rowMapper).single();
+        return jdbcClient.sql(sql).params(ticker).query(rowMapper).optional().orElse(null);
     }
 }

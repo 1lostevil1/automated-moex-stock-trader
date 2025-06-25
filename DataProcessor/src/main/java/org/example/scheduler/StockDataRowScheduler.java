@@ -39,7 +39,6 @@ public class StockDataRowScheduler {
         stocks.forEach(stock -> {
             String figi = stock.getFigi();
                 CandleEntity candle = candleRepository.getLastCandleByFigi(figi);
-                log.info(candle.toString());
                 if (candle.getRsi() == null || candle.getEma() == null || candle.getRsi() == null) {
                     return;
                 }

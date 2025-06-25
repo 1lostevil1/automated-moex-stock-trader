@@ -2,7 +2,6 @@ package org.example;
 
 import jakarta.annotation.PostConstruct;
 import org.example.config.ApplicationConfig;
-import org.example.postgres.repository.StockRepository;
 import org.example.service.LastPricesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

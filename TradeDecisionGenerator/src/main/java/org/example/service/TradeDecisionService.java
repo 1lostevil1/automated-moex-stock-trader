@@ -116,6 +116,7 @@ public class TradeDecisionService {
                 .createdAt(OffsetDateTime.now())
                 .build();
 
+        System.out.println(decision);
         tradeDecisionRepository.save(decision);
 
         return decision;

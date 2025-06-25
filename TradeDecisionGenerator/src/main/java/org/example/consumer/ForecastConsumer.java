@@ -1,6 +1,7 @@
 package org.example.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.example.message.ForecastRequest;
 import org.example.message.ForecastResponse;
 import org.example.postgres.entity.TradeDecisionEntity;
@@ -10,12 +11,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class ForecastConsumer {
 
     private final TradeDecisionService tradeDecisionService;
     private final KafkaTemplate<String, TradeDecisionEntity> kafkaTemplate;
 
-    private static final String TRADE_DECISION_TOPIC = "tradeRequest";
+    private static final String TRADE_DECISION_TOPIC = "tradeResponse";
 
     public ForecastConsumer(TradeDecisionService tradeDecisionService,
                             KafkaTemplate<String, TradeDecisionEntity> kafkaTemplate) {
@@ -27,11 +29,14 @@ public class ForecastConsumer {
     public void listen(ForecastResponse forecastResponse) {
         try {
 
+            log.info(forecastResponse.toString());
             TradeDecisionEntity tradeDecision = tradeDecisionService.makeDecision(forecastResponse);
 
+
             if (tradeDecision != null) {
-                kafkaTemplate.send(TRADE_DECISION_TOPIC,tradeDecision);
+                kafkaTemplate.send(TRADE_DECISION_TOPIC, tradeDecision);
             }
+
         } catch (Exception e) {
             // Логирование ошибки
             e.printStackTrace();

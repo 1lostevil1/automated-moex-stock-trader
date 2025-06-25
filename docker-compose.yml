@@ -36,10 +36,13 @@ services:
       - "9093:9093" # Для внутренней коммуникации
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://26.236.88.200:9092,PLAINTEXT_HOST://26.236.88.200:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LOG_RETENTION_MS=1000          # Сообщения удаляются через 1 секунду
+      - KAFKA_CFG_LOG_SEGMENT_DELETE_DELAY_MS=500 # Сегменты удаляются через 0.5 секунд
+      - KAFKA_CFG_LOG_CLEANUP_POLICY=delete       # Политика очистки - удаление
     depends_on:
       - zookeeper
     networks:
