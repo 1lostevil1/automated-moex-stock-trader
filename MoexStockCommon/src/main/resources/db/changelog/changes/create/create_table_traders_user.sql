@@ -1,9 +1,9 @@
-CREATE TABLE tg_user(
+CREATE TABLE traders_user(
                         id TEXT PRIMARY KEY,
                         username TEXT NOT NULL UNIQUE,
                         password TEXT NOT NULL,
-                        tg_id BIGINT,
-                        tg_name BIGINT,
+                        telegram_id BIGINT,
+                        telegram_name BIGINT,
                         state VARCHAR(20),
-                        token TEXT
+                        invest_api_token TEXT
 )

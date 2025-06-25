@@ -15,7 +15,7 @@ public class Stop implements Command {
         String userName = update.message().chat().username();
         try {
             var entity = repository.getByTelegramName(userName);
-            entity.setTgId(null);
+            entity.setTelegramId(null);
             repository.update(entity);
             return new SendMessage(id, "Вы отписались от оповещений");
         } catch (Exception e) {

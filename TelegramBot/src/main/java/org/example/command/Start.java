@@ -3,7 +3,6 @@ package org.example.command;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.AllArgsConstructor;
-import org.example.postgres.entity.UserEntity;
 import org.example.postgres.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +15,9 @@ public class Start implements Command {
         String userName = update.message().chat().username();
         try {
             var entity = repository.getByTelegramName(userName);
-            entity.setTgId(id);
+            entity.setTelegramId(id);
             repository.update(entity);
-            return new SendMessage(id, "Добро пожаловать, " + entity.getUserName());
+            return new SendMessage(id, "Добро пожаловать, " + entity.getUsername());
         } catch (Exception e) {
             return new SendMessage(id,"Сначала зарегистрируйтесь на сайте");
         }
