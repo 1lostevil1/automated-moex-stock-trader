@@ -15,6 +15,7 @@
         <module>DataLoader</module>
         <module>DataProcessor</module>
         <module>TelegramBot</module>
+        <module>ClientService</module>
     </modules>
 
     <properties>
@@ -29,6 +30,7 @@
         <ta4j.version>0.15</ta4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-telegram-bot-api.version>7.0.1</java-telegram-bot-api.version>
+        <json.web.token.version>0.11.5</json.web.token.version>
     </properties>
 
     <dependencyManagement>
@@ -79,6 +81,24 @@
                 <artifactId>java-telegram-bot-api</artifactId>
                 <version>${java-telegram-bot-api.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${json.web.token.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${json.web.token.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${json.web.token.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -87,6 +107,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>

@@ -2,53 +2,88 @@ package org.example.postgres.repository;
 
 import org.example.postgres.entity.State;
 import org.example.postgres.entity.UserEntity;
+import org.example.postgres.mapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
 public class UserRepository {
     private final JdbcClient jdbcClient;
+    private static final RowMapper<UserEntity> rowMapper = new UserRowMapper();
     @Autowired
     public UserRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
-    public void save(UserEntity user){
-        String sql = "INSERT INTO tg_user (tgid,username,state) " +
+    public UserEntity getById(UUID id){
+        String sql = "SELECT id,username,password,tg_id,tg_name,token FROM tg_user WHERE id = ?";
+        return jdbcClient.sql(sql).params(id).query(rowMapper).single();
+    }
+
+    public UserEntity getByName(String name){
+        String sql = "SELECT id,username,password,tg_id,tg_name,token FROM tg_user WHERE username = ?";
+        return jdbcClient.sql(sql).params(name).query(rowMapper).single();
+    }
+
+    public void create(UserEntity user){
+        String sql = "INSERT INTO tg_user (id,username,password) " +
                 "VALUES (?, ?, ?)";
-        jdbcClient.sql(sql).params(user.getId(),user.getUserName(),"NONE").update();
+        jdbcClient.sql(sql).params(user.getId(),
+                user.getUserName(),
+                user.getPassword()
+                ).update();
+    };
+
+    public void update(UserEntity user){
+        String sql = "UPDATE tg_user SET username = ?, password = ?, tg_id = ?, tg_name = ?, token = ? WHERE id = ?)";
+        jdbcClient.sql(sql).params(
+                user.getUserName(),
+                user.getPassword(),
+                user.getTgId(),
+                user.getTgName(),
+                user.getToken(),
+                user.getId()
+        ).update();
     };
 
     public void setState(Long id, State state){
-        String sql = "UPDATE tg_user SET state = ? WHERE tgid = ?";
+        String sql = "UPDATE tg_user SET state = ? WHERE tg_id = ?";
         jdbcClient.sql(sql).params(state.name(),id).update();
     };
 
     public Optional<String> getState(Long id){
-        String sql = "SELECT state FROM tg_user WHERE tgid = ?";
+        String sql = "SELECT state FROM tg_user WHERE tg_id = ?";
         var rs = jdbcClient.sql(sql).params(id).query().rowSet();
         if(rs.next())
             return Optional.of(rs.getString("state"));
         return Optional.empty();
     };
 
-    public void register(Long id,String token){
-        String sql = "UPDATE tg_user SET token = ? WHERE tgid = ?";
+    public void register(UUID id, String token){
+        String sql = "UPDATE tg_user SET token = ? WHERE id = ?";
         jdbcClient.sql(sql).params(token,id).update();
     };
 
-    public void subscribe(Long id,String ticker){
-        String sql = "INSERT INTO user_stock (tgid,ticker) " +
+    public void subscribe(UUID id,String ticker){
+        String sql = "INSERT INTO user_stock (id,ticker) " +
                 "VALUES (?, ?)";
         jdbcClient.sql(sql).params(id,ticker).update();
     };
 
-    public void unsubscribe(Long id,String ticker){
-        String sql = "DELETE FROM user_stock WHERE tgid = ? AND tiсker = ? ";
+    public void unsubscribe(UUID id,String ticker){
+        String sql = "DELETE FROM user_stock WHERE id = ? AND tiсker = ? ";
         jdbcClient.sql(sql).params(id,ticker).update();
+    };
+
+    public List<Long> getUsers(String ticker){
+        String sql = "SELECT tgid FROM user_stock JOIN tg_user USING(id) WHERE ticker = ? ";
+        return jdbcClient.sql(sql).params(ticker).query((rs,rowNumber)-> rs.getLong("tgid")).stream().toList();
     };
 }
