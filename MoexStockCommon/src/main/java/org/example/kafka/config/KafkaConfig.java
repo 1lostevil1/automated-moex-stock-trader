@@ -7,13 +7,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KafkaConfig {
 
-    @Bean
+    @Bean(name = "forecastRequest")
     public NewTopic forecastRequestTopic() {
         return new NewTopic("forecastRequest", 3, (short) 1);
     }
-    @Bean
+    @Bean(name = "forecastResponse")
     public NewTopic forecastResponseTopic() {
         return new NewTopic("forecastResponse", 3, (short) 1);
+    }
+    @Bean(name = "TradeRequest")
+    public NewTopic tradeRequestTopic() {
+        return new NewTopic("tradeRequest", 3, (short) 1);
+    }
+    @Bean(name = "TradeResponse")
+    public NewTopic tradeResponseTopic() {
+        return new NewTopic("tradeResponse", 3, (short) 1);
     }
 
 }

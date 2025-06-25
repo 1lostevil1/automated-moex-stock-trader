@@ -2,7 +2,6 @@ package org.example.service.streamData.impl;
 
 import org.example.config.InvestApiConfig;
 import org.example.service.streamData.interfaces.DataStreamService;
-import org.example.util.finder.FigiFinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

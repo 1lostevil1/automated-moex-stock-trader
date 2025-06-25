@@ -54,7 +54,7 @@ public class UserRepository {
     };
 
     public List<Long> getUsers(String ticker){
-        String sql = "SELECT tgid FROM user_stock WHERE tiсker = ? ";
+        String sql = "SELECT tgid FROM user_stock WHERE ticker = ? ";
         return jdbcClient.sql(sql).params(ticker).query((rs,rowNumber)-> rs.getLong("tgid")).stream().toList();
     };
 }

@@ -15,6 +15,7 @@
         <module>DataLoader</module>
         <module>DataProcessor</module>
         <module>TelegramBot</module>
+        <module>TradeDecisionGenerator</module>
     </modules>
 
     <properties>
