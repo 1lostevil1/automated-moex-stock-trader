@@ -28,7 +28,7 @@ DATA_SCRIPT = """
                 AND rsi IS NOT NULL
                 AND macd IS NOT NULL
                 AND ema IS NOT NULL
-                AND EXTRACT(DAY FROM "time") = 23 -- TODO: потом удалить
+                AND CAST("time" AS TIME) BETWEEN '10:00:00' AND '18:40:00'
               ORDER BY "time"; \
               """
 
