@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="create-decision" author="kireev">
+        <sqlFile path="changes/create/create_table_trade_decision.sql" relativeToChangelogFile="true"/>
+
+        <rollback>
+            <sqlFile path="changes/rollback/rollback_create_table_trade_decision.sql" relativeToChangelogFile="true"/>
+
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

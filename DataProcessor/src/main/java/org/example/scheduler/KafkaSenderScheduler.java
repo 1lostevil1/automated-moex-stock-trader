@@ -63,7 +63,6 @@ public class KafkaSenderScheduler {
                     return;
                 }
                 ForecastRequest forecastRequest = new ForecastRequest(ticker, forecastRequestList);
-                log.info(forecastRequest.toString());
                 kafkaTemplate.send("forecastRequest", forecastRequest);
 
             }

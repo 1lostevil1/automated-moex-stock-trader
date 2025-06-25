@@ -1,5 +1,7 @@
 package org.example.controller;
 
+import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.response.BaseResponse;
 import org.example.command.*;
 import org.example.command.Action.GetTickerForSubscribe;
 import com.pengrad.telegrambot.model.Update;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.pengrad.telegrambot.request.SendMessage;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -35,7 +38,7 @@ public class CommandHandler {
         );
     }
 
-    public SendMessage handle(Update update) {
+    public List<BaseRequest<?, ? extends BaseResponse>> handle(Update update) {
         Long id = update.message().chat().id();
         var state = repository.getState(id);
         if(state.isEmpty() || state.get().equals("NONE")) {
@@ -46,7 +49,7 @@ public class CommandHandler {
         }
     }
 
-    public SendMessage executeCommand(Update update) {
+    public List<BaseRequest<?, ? extends BaseResponse>> executeCommand(Update update) {
         Long id = update.message().chat().id();
         String message = update.message().text();
         Command command = null;
@@ -56,7 +59,7 @@ public class CommandHandler {
         if (command != null) {
             return command.apply(update,repository);
         }
-        return new SendMessage(id, "неверная команда!");
+        return List.of(new SendMessage(id, "неверная команда!"));
     }
 
 }

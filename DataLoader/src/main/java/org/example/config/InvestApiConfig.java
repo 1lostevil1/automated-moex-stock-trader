@@ -59,7 +59,7 @@ public class InvestApiConfig {
         return response -> {
             if (response.hasOrderbook()) {
                 var orderbook = response.getOrderbook();
-                executorService.submit(()->orderbookRepository.save(OrderbookMapper.mapApiOrderbookToEntity(orderbook)));
+                executorService.submit(() -> orderbookRepository.save(OrderbookMapper.mapApiOrderbookToEntity(orderbook)));
             }
 
         };
@@ -71,7 +71,7 @@ public class InvestApiConfig {
         return response -> {
             if (response.hasCandle()) {
                 var candle = response.getCandle();
-                executorService.submit(()->candleRepository.save(CandleMapper.mapApiCandleToEntity(candle)));
+                executorService.submit(() -> candleRepository.save(CandleMapper.mapApiCandleToEntity(candle)));
             }
         };
     }
@@ -82,20 +82,12 @@ public class InvestApiConfig {
         return response -> {
             if (response.hasTrade()) {
                 var trade = response.getTrade();
-                    executorService.submit(()->tradeRepository.save(TradeMapper.mapApiTradeToEntity(trade)));
+                executorService.submit(() -> tradeRepository.save(TradeMapper.mapApiTradeToEntity(trade)));
 
             }
         };
     }
 
-    @Bean
-    @Qualifier(LAST_PRICE)
-    public StreamProcessor<MarketDataResponse> lastPriceStreamProcessor() {
-        return response -> {
-            if (response.hasLastPrice()) {
-            }
-        };
-    }
 
     @Bean
     public Consumer<Throwable> marketDataErrorHandler() {

@@ -17,7 +17,7 @@ public class StockDataRowMapper implements RowMapper<StockDataEntity> {
         entity.setId(rs.getLong("id"));
         entity.setFigi(rs.getString("figi"));
         entity.setInstrumentUid(rs.getString("instrument_uid"));
-
+        entity.setTicker(rs.getString("ticker"));
         Timestamp ts = rs.getTimestamp("time");
         if (ts != null) {
             entity.setTime(ts.toInstant().atOffset(OffsetDateTime.now().getOffset()));

@@ -59,7 +59,7 @@ public class UserRepository {
     };
 
     public Optional<String> getState(Long id){
-        String sql = "SELECT state FROM tg_user WHERE tg_id = ?";
+        String sql = "SELECT state FROM tg_user WHERE tgid = ?";
         var rs = jdbcClient.sql(sql).params(id).query().rowSet();
         if(rs.next())
             return Optional.of(rs.getString("state"));
