@@ -5,7 +5,7 @@ import org.example.DTO.UserDTO;
 import org.example.mapper.UserMapper;
 import org.example.postgres.entity.UserEntity;
 import org.example.postgres.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

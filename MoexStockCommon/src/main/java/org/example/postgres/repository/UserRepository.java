@@ -32,6 +32,11 @@ public class UserRepository {
         return jdbcClient.sql(sql).params(name).query(rowMapper).single();
     }
 
+    public UserEntity getByTelegramName(String name){
+        String sql = "SELECT id,username,password,tg_id,tg_name,token FROM tg_user WHERE tg_name = ?";
+        return jdbcClient.sql(sql).params(name).query(rowMapper).single();
+    }
+
     public void create(UserEntity user){
         String sql = "INSERT INTO tg_user (id,username,password) " +
                 "VALUES (?, ?, ?)";
@@ -51,39 +56,21 @@ public class UserRepository {
                 user.getToken(),
                 user.getId()
         ).update();
-    };
+    }
 
-    public void setState(Long id, State state){
-        String sql = "UPDATE tg_user SET state = ? WHERE tg_id = ?";
-        jdbcClient.sql(sql).params(state.name(),id).update();
-    };
-
-    public Optional<String> getState(Long id){
-        String sql = "SELECT state FROM tg_user WHERE tgid = ?";
-        var rs = jdbcClient.sql(sql).params(id).query().rowSet();
-        if(rs.next())
-            return Optional.of(rs.getString("state"));
-        return Optional.empty();
-    };
-
-    public void register(UUID id, String token){
-        String sql = "UPDATE tg_user SET token = ? WHERE id = ?";
-        jdbcClient.sql(sql).params(token,id).update();
-    };
-
-    public void subscribe(UUID id,String ticker){
+    public void subscribe(String id,String ticker){
         String sql = "INSERT INTO user_stock (id,ticker) " +
                 "VALUES (?, ?)";
         jdbcClient.sql(sql).params(id,ticker).update();
-    };
+    }
 
-    public void unsubscribe(UUID id,String ticker){
+    public void unsubscribe(String id,String ticker){
         String sql = "DELETE FROM user_stock WHERE id = ? AND tiсker = ? ";
         jdbcClient.sql(sql).params(id,ticker).update();
-    };
+    }
 
     public List<Long> getUsers(String ticker){
         String sql = "SELECT tgid FROM user_stock JOIN tg_user USING(id) WHERE ticker = ? ";
         return jdbcClient.sql(sql).params(ticker).query((rs,rowNumber)-> rs.getLong("tgid")).stream().toList();
-    };
+    }
 }

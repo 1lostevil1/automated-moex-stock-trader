@@ -12,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
-    private UUID id;
+    private String id;
     private String userName;
     private String password;
     private Long tgId;

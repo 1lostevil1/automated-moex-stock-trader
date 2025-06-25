@@ -1,5 +1,5 @@
 CREATE TABLE tg_user(
-                        id UUID PRIMARY KEY,
+                        id TEXT PRIMARY KEY,
                         username TEXT NOT NULL UNIQUE,
                         password TEXT NOT NULL,
                         tg_id BIGINT,
