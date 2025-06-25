@@ -7,7 +7,6 @@ import joblib
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt  # TODO: потом удалить
 from tensorflow.keras.layers import Input, LSTM, Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger
@@ -59,15 +58,6 @@ class StockPredictionModel:
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr
         self.__model_curr.save(f'{model_path}\\{ticker}_prev.keras')
         self.__save_scalers(model_path)
-
-        # TODO: эту часть потом удалить
-        predictions = self.model_in_use.predict(X_test)
-        predictions = self.__scaler_Y.inverse_transform(predictions)
-        plt.plot(df['time'].iloc[training_data_len:], predictions, '--', color='red', label='Predicted close price')
-        plt.plot(df['time'].iloc[training_data_len:], y_test, color='blue', label='Real close price')
-        plt.legend()
-        plt.title(f"Close price prediction for {ticker}")
-        plt.show()
 
     def load_model(self, dir_path: str) -> None:
         self.__model_curr = tf.keras.models.load_model(dir_path)
