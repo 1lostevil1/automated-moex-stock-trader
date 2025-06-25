@@ -41,7 +41,6 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
         while True:
             msg = consumer.poll()
             consumer.commit(asynchronous=True)
-
             if msg is None:
                 continue
             if msg.error():
@@ -54,17 +53,15 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
             try:
                 value = msg.value().decode('utf-8') if msg.value() else None
                 value_parsed: dict = loads(value)
-                print(value_parsed)
 
                 reply_topic = RESPONSE_TOPIC
-                # correlation_id = value_parsed.get("correlation_id")
 
                 ml_req: MLrequest = process_forecast_dict(value_parsed)
 
                 prediction: Optional[float] = ml.get_prediction_by_request(ml_req)
-
+                response = {"ticker": ml_req.ticker, "closePrice": prediction}
+                print(response)
                 if prediction is not None:
-                    response = prediction
                     producer.produce(
                         topic=reply_topic,
                         value=dumps(response),

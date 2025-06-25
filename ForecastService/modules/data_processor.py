@@ -15,9 +15,9 @@ USED_COLUMNS = [
     # "volume",
     # "bid_volume",
     # "ask_volume",
-    # "buy_volume",
-    # "sell_volume",
-    # "rsi",
+    "buy_volume",
+    "sell_volume",
+    "rsi",
     # "macd",
     # "ema"
 ]
@@ -101,9 +101,9 @@ def process_ml_request(ml_req: MLrequest) -> list[list[float]]:
         raise ValueError(f"Invalid fields selected: {invalid_fields}")
 
     get_values = attrgetter(*USED_COLUMNS)
-
-    return [
+    result = [
         list(get_values(entity)) if len(USED_COLUMNS) > 1
         else [get_values(entity)]
         for entity in ml_req.stocks
     ]
+    return result

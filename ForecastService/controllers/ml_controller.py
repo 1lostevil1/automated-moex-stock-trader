@@ -67,11 +67,10 @@ class MLController:
             self.__init_single_model(ticker, folders)
             return None
 
-        return self.__models[ticker].get_prediction(inputs)
+        return float(self.__models[ticker].get_prediction(inputs))
 
 
 app = Flask(__name__)
-ml_controller = MLController()
 
 
 @app.route('/api/retrain', methods=['GET'])
