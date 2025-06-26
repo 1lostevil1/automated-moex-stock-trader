@@ -30,7 +30,6 @@ public class AuthController {
 
     private final UserService userService;
 
-    // TODO почему-то ругается на autowire(no beans)
     private final AuthenticationManager authenticationManager;
 
     private final JwtTokenUtils jwtTokenUtils;

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exception.InvestApiTokenAlreadyInUseException;
 import org.example.models.request.SetInvestApiTokenRequest;
+import org.example.models.request.TickerRequest;
 import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,5 +30,21 @@ public class UserController {
         }
 
         return ResponseEntity.ok("Токен успешно обновлен");
+    }
+
+    @PatchMapping("/subscribe")
+    public ResponseEntity<?> subscribeTicker(@RequestHeader("Authorization") String jwtToken, @Validated @RequestBody TickerRequest request) {
+        if (!userService.subscribe(request.ticker(), jwtToken)) {
+            return new ResponseEntity<>(new InvestApiTokenAlreadyInUseException(HttpStatus.BAD_REQUEST.value(), "Вы уже подписаны на данный тикер"), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok("Вы подписались на тикер");
+    }
+
+    @PatchMapping("/unsubscribe")
+    public ResponseEntity<?> unsubscribeTicker(@RequestHeader("Authorization") String jwtToken, @Validated @RequestBody TickerRequest request) {
+        if (!userService.unsubscribe(request.ticker(), jwtToken)) {
+            return new ResponseEntity<>(new InvestApiTokenAlreadyInUseException(HttpStatus.BAD_REQUEST.value(), "Вы еще не подписаны на данный тикер"), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok("Вы отписались от тикера");
     }
 }
