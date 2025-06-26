@@ -14,7 +14,7 @@ public class UserRowMapper implements RowMapper<UserEntity> {
                 .username(rs.getString("username"))
                 .password(rs.getString("password"))
                 .telegramId(rs.getLong("telegram_id"))
-                .telegramName(rs.getString("telegram_name"))
+                .telegramUsername(rs.getString("telegram_username"))
                 .investApiToken(rs.getString("invest_api_token"))
                 .build();
     }

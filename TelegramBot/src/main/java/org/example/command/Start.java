@@ -14,7 +14,7 @@ public class Start implements Command {
         Long id = update.message().chat().id();
         String userName = update.message().chat().username();
         try {
-            var entity = repository.getByTelegramName(userName);
+            var entity = repository.getByTelegramUsername(userName);
             entity.setTelegramId(id);
             repository.update(entity);
             return new SendMessage(id, "Добро пожаловать, " + entity.getUsername());

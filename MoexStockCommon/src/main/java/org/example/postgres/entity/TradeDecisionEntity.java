@@ -18,8 +18,6 @@ public class TradeDecisionEntity {
     private BigDecimal price;
     private BigDecimal stopLoss;
     private BigDecimal takeProfit;
-    private  TradeDecisionDirection direction;
+    private TradeDecisionDirection direction;
     private OffsetDateTime createdAt;
-
-
 }

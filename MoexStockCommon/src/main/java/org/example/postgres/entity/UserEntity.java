@@ -14,6 +14,6 @@ public class UserEntity {
     private String username;
     private String password;
     private Long telegramId;
-    private String telegramName;
+    private String telegramUsername;
     private String investApiToken;
 }

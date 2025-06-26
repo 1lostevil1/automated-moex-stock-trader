@@ -1,9 +1,9 @@
-package org.example.DTO;
+package org.example.dto;
 
-public record UserDTO(
+public record UserDto(
         String id,
         String username,
         String password,
-        String tg_name,
+        String telegramUsername,
         String token
 ){}
