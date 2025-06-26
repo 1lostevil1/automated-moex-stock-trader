@@ -6,6 +6,8 @@ CREATE TABLE stock (
 
 );
 
+ALTER TABLE stock ADD CONSTRAINT unique_ticker UNIQUE (ticker);
+
 INSERT INTO stock (figi, instrument_uid, ticker, name)
 VALUES
 ('BBG004730N88', 'SBER', 'SBER', 'SBERBANK'),

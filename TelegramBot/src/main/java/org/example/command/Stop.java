@@ -8,18 +8,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class Start implements Command {
+public class Stop implements Command {
     @Override
     public SendMessage apply(Update update, UserRepository repository) {
         Long id = update.message().chat().id();
         String userName = update.message().chat().username();
         try {
             var entity = repository.getByTelegramUsername(userName);
-            entity.setTelegramId(id);
+            entity.setTelegramId(null);
             repository.update(entity);
-            return new SendMessage(id, "Добро пожаловать, " + entity.getUsername());
+            return new SendMessage(id, "Вы отписались от оповещений");
         } catch (Exception e) {
-            return new SendMessage(id,"Сначала зарегистрируйтесь на сайте");
+            return new SendMessage(id, "Вы не подписаны");
         }
     }
 }
