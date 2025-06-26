@@ -23,10 +23,11 @@ public class TradeDecisionRepository {
     public void save(TradeDecisionEntity position) {
         String sql = """
             INSERT INTO trade_decision (
-                ticker, price, stop_loss, take_profit, direction, created_at
-            ) VALUES (?, ?, ?, ?, ?::trade_decision_direction, ?)
+                ticker, price,last_price, stop_loss, take_profit, direction, created_at
+            ) VALUES (?, ?, ?,?, ?, ?::trade_decision_direction, ?)
             ON CONFLICT (ticker) DO UPDATE SET
                 price = EXCLUDED.price,
+                last_price = EXCLUDED.last_price,
                 stop_loss = EXCLUDED.stop_loss,
                 take_profit = EXCLUDED.take_profit,
                 direction = EXCLUDED.direction,
@@ -36,6 +37,7 @@ public class TradeDecisionRepository {
         jdbcClient.sql(sql).params(
                 position.getTicker(),
                 position.getPrice(),
+                position.getLastPrice(),
                 position.getStopLoss(),
                 position.getTakeProfit(),
                 position.getDirection().name(),

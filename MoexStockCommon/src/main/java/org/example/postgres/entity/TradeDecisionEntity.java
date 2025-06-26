@@ -16,6 +16,7 @@ public class TradeDecisionEntity {
     private Long id;
     private String ticker;
     private BigDecimal price;
+    private BigDecimal lastPrice;
     private BigDecimal stopLoss;
     private BigDecimal takeProfit;
     private TradeDecisionDirection direction;

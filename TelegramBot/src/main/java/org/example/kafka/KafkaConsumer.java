@@ -23,7 +23,8 @@ public class KafkaConsumer {
         try {
             var users = repository.getUsers(tradeDecision.getTicker());
             String text = "Акция с тикером:  " +tradeDecision.getTicker()
-                    + "\nЦена:" + tradeDecision.getPrice()
+                    + "\nЦена входа:" + tradeDecision.getPrice()
+                    + "\nЦена сейчас:" + tradeDecision.getLastPrice()
                     + "\nTP:" + tradeDecision.getTakeProfit()
                     + "\nSL:" + tradeDecision.getStopLoss()
                     + "\nНаправление:" + tradeDecision.getDirection();
