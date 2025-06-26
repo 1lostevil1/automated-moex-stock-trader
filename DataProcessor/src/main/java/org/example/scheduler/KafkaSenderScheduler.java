@@ -60,9 +60,9 @@ public class KafkaSenderScheduler {
                 }
             } else {
                 if(forecastRequestList.size()<10) {
-                    log.info(ticker + "  " + String.valueOf(forecastRequestList.size()));
+                    log.info(ticker + "  " + forecastRequestList.size());
                     log.info("мало данных для предсказания");
-                    return;
+                    continue;
                 }
                 ForecastRequest forecastRequest = new ForecastRequest(ticker, forecastRequestList);
                 kafkaTemplate.send("forecastRequest", forecastRequest);
