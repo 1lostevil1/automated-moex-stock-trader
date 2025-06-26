@@ -2,7 +2,6 @@ package org.example.kafka;
 
 import com.pengrad.telegrambot.request.SendMessage;
 import org.example.controller.TelegramBotController;
-import org.example.kafka.message.KafkaMessage;
 import org.example.postgres.entity.TradeDecisionEntity;
 import org.example.postgres.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "${kafka.topic.name}")
     public void listen(TradeDecisionEntity tradeDecision) {
         try {
-            var users = repository.getUsers(tradeDecision.getTicker());
+            var users = repository.getTelegramIds(tradeDecision.getTicker());
             String text = "Акция с тикером:  " +tradeDecision.getTicker()
                     + "\nЦена:" + tradeDecision.getPrice()
                     + "\nTP:" + tradeDecision.getTakeProfit()

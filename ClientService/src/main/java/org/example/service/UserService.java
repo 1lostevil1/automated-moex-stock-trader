@@ -8,6 +8,7 @@ import org.example.mapper.UserMapper;
 import org.example.postgres.entity.UserEntity;
 import org.example.postgres.repository.UserRepository;
 
+import org.example.postgres.repository.UserStockRepository;
 import org.example.utils.JwtTokenUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,8 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+
+    private final UserStockRepository userStockRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -80,5 +83,21 @@ public class UserService implements UserDetailsService {
     private Optional<UserEntity> getUserEntityOutOfJwt(String token) {
         String username = jwtTokenUtils.getUsername(token);
         return userRepository.getByUsername(username);
+    }
+
+    public boolean subscribe(String token, String ticker){
+        var entity = getUserEntityOutOfJwt(token).orElseThrow();
+        if(userStockRepository.exists(entity.getId(),token))
+            return false;
+        userStockRepository.subscribe(entity.getId(),token);
+        return true;
+    }
+
+    public boolean unsubscribe(String token, String ticker){
+        var entity = getUserEntityOutOfJwt(token).orElseThrow();
+        if(!userStockRepository.exists(entity.getId(),token))
+            return false;
+        userStockRepository.unsubscribe(entity.getId(),token);
+        return true;
     }
 }
