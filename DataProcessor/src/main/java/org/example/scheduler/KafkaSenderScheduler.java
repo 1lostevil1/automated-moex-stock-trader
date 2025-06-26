@@ -1,6 +1,7 @@
 package org.example.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.example.message.ForecastRequest;
 import org.example.postgres.entity.StockDataEntity;
 import org.example.postgres.entity.StockEntity;
@@ -40,10 +41,9 @@ public class KafkaSenderScheduler {
 
         while (!tickerQueue.isEmpty()) {
             String ticker = tickerQueue.poll();
-            OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(10).minusSeconds(1);
+            OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(11);
             List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
                     time);
-            log.info(String.valueOf(time));
 
             boolean hasNullIndicators = forecastRequestList.stream()
                     .anyMatch(data -> data.getRsi() == null || data.getMacd() == null || data.getEma() == null);
@@ -59,6 +59,7 @@ public class KafkaSenderScheduler {
                 }
             } else {
                 if(forecastRequestList.size()<10) {
+                    log.info(ticker + "  " + String.valueOf(forecastRequestList.size()));
                     log.info("мало данных для предсказания");
                     return;
                 }

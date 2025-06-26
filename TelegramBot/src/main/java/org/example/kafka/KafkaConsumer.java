@@ -27,6 +27,7 @@ public class KafkaConsumer {
                     + "\nTP:" + tradeDecision.getTakeProfit()
                     + "\nSL:" + tradeDecision.getStopLoss()
                     + "\nНаправление:" + tradeDecision.getDirection();
+            System.out.println(text);
             for(var user : users){
                 bot.sendNotification(new SendMessage(user,text));
             }

@@ -1,5 +1,6 @@
 package org.example.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.service.LastPriceCacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +13,7 @@ import ru.tinkoff.piapi.core.stream.StreamProcessor;
 import java.util.function.Consumer;
 
 @Configuration
+@Slf4j
 public class LastPriceConfig {
 
     private final ApplicationConfig appConfig;

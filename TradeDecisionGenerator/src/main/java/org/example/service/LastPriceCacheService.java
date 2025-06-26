@@ -29,7 +29,7 @@ public class LastPriceCacheService {
         if (figi == null || price == null) {
             throw new IllegalArgumentException("Ticker and price must not be null");
         }
-        lastPriceMap.put(figiTicker.get(figi), price);
+        lastPriceMap.put(figi, price);
     }
 
     public Double getLastPrice(String ticker) {
