@@ -45,6 +45,7 @@ public class KafkaSenderScheduler {
             List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
                     time);
 
+            if(forecastRequestList.size()==11) forecastRequestList.removeFirst();
             boolean hasNullIndicators = forecastRequestList.stream()
                     .anyMatch(data -> data.getRsi() == null || data.getMacd() == null || data.getEma() == null);
 
