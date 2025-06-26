@@ -9,32 +9,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Component
 public class KafkaConsumer {
     private final UserRepository repository;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(20);
     private final TelegramBotController bot;
+
     @Autowired
-    public KafkaConsumer(TelegramBotController bot,UserRepository repository){
+    public KafkaConsumer(TelegramBotController bot, UserRepository repository) {
         this.bot = bot;
         this.repository = repository;
     }
+
     @KafkaListener(topics = "${kafka.topic.name}")
     public void listen(TradeDecisionEntity tradeDecision) {
-        try {
-            var users = repository.getUsers(tradeDecision.getTicker());
-            String text = "Акция с тикером:  " +tradeDecision.getTicker()
-                    + "\nЦена входа:" + tradeDecision.getPrice()
-                    + "\nЦена сейчас:" + tradeDecision.getLastPrice()
-                    + "\nTP:" + tradeDecision.getTakeProfit()
-                    + "\nSL:" + tradeDecision.getStopLoss()
-                    + "\nНаправление:" + tradeDecision.getDirection();
-            System.out.println(text);
-            for(var user : users){
-                bot.sendNotification(new SendMessage(user,text));
+        var users = repository.getUsers(tradeDecision.getTicker());
+        executorService.submit(() -> {
+            try {
+                String text = "Акция с тикером:  " + tradeDecision.getTicker()
+                        + "\nЦена входа:" + tradeDecision.getPrice()
+                        + "\nЦена сейчас:" + tradeDecision.getLastPrice()
+                        + "\nTP:" + tradeDecision.getTakeProfit()
+                        + "\nSL:" + tradeDecision.getStopLoss()
+                        + "\nНаправление:" + tradeDecision.getDirection();
+                System.out.println(text);
+                for (var user : users) {
+                    bot.sendNotification(new SendMessage(user, text));
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
+        });
+
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 
 @Service
@@ -18,10 +17,10 @@ public class TradeDecisionService {
     private final TradeDecisionRepository tradeDecisionRepository;
 
     @Value("${strategy.min_reversal_profit:0.0025}")
-    private BigDecimal minReversalProfit;
+    private double minReversalProfit;
 
     @Value("${strategy.risk_multiplier:0.5}")
-    private BigDecimal riskMultiplier;
+    private double riskMultiplier;
 
     public TradeDecisionService(LastPriceCacheService lastPriceCache,
                                 TradeDecisionRepository tradeDecisionRepository) {
@@ -31,55 +30,52 @@ public class TradeDecisionService {
 
     public TradeDecisionEntity makeDecision(ForecastResponse forecastResponse) {
         String ticker = forecastResponse.ticker();
-        BigDecimal forecastPriceBD = BigDecimal.valueOf(forecastResponse.closePrice());
+        double forecastPrice = forecastResponse.closePrice();
 
         Double lastPriceDouble = lastPriceCache.getLastPrice(ticker);
         if (lastPriceDouble == null) {
-            return null; // Нет текущей цены — решение невозможно
+            return null;
         }
-        BigDecimal lastPrice = BigDecimal.valueOf(lastPriceDouble);
-        BigDecimal minProfitThreshold = lastPrice.multiply(minReversalProfit);
+        double lastPrice = lastPriceDouble;
+        double minProfitThreshold = lastPrice * minReversalProfit;
 
         TradeDecisionEntity prevDecision = tradeDecisionRepository.findByTicker(ticker);
         TradeDecisionDirection newDirection = null;
-        BigDecimal entryPrice = lastPrice; // По умолчанию для новых позиций
+        double entryPrice = lastPrice;
 
-        // 1. Определение направления с учетом минимальной прибыли для разворота
+        // 1. Определение направления позиции
         if (prevDecision == null) {
-            // Нет предыдущей позиции
-            if (forecastPriceBD.compareTo(lastPrice) > 0) {
+            if (forecastPrice > lastPrice) {
                 newDirection = TradeDecisionDirection.LONG;
-            } else if (forecastPriceBD.compareTo(lastPrice) < 0) {
+            } else if (forecastPrice < lastPrice) {
                 newDirection = TradeDecisionDirection.SHORT;
             }
         } else {
-            entryPrice = prevDecision.getPrice(); // Сохраняем цену входа
+            entryPrice = prevDecision.getPrice().doubleValue();
             TradeDecisionDirection prevDir = prevDecision.getDirection();
 
-            // Расчет потенциальной прибыли для разворота
-            BigDecimal potentialProfit = BigDecimal.ZERO;
-            if (prevDir.isLong() && forecastPriceBD.compareTo(lastPrice) < 0) {
-                potentialProfit = lastPrice.subtract(forecastPriceBD);
-            } else if (prevDir.isShort() && forecastPriceBD.compareTo(lastPrice) > 0) {
-                potentialProfit = forecastPriceBD.subtract(lastPrice);
+            double potentialProfit = 0.0;
+            if (prevDir.isLong() && forecastPrice < lastPrice) {
+                potentialProfit = lastPrice - forecastPrice;
+            } else if (prevDir.isShort() && forecastPrice > lastPrice) {
+                potentialProfit = forecastPrice - lastPrice;
             }
 
-            // Логика принятия решения
             if (prevDir.isLong()) {
-                if (forecastPriceBD.compareTo(lastPrice) > 0) {
+                if (forecastPrice > lastPrice) {
                     newDirection = TradeDecisionDirection.LONG_HOLD;
-                } else if (potentialProfit.compareTo(minProfitThreshold) >= 0) {
+                } else if (potentialProfit >= minProfitThreshold) {
                     newDirection = TradeDecisionDirection.SHORT;
-                    entryPrice = lastPrice; // Сброс цены входа для новой позиции
+                    entryPrice = lastPrice;
                 } else {
                     newDirection = TradeDecisionDirection.LONG_HOLD;
                 }
             } else if (prevDir.isShort()) {
-                if (forecastPriceBD.compareTo(lastPrice) < 0) {
+                if (forecastPrice < lastPrice) {
                     newDirection = TradeDecisionDirection.SHORT_HOLD;
-                } else if (potentialProfit.compareTo(minProfitThreshold) >= 0) {
+                } else if (potentialProfit >= minProfitThreshold) {
                     newDirection = TradeDecisionDirection.LONG;
-                    entryPrice = lastPrice; // Сброс цены входа для новой позиции
+                    entryPrice = lastPrice;
                 } else {
                     newDirection = TradeDecisionDirection.SHORT_HOLD;
                 }
@@ -87,40 +83,52 @@ public class TradeDecisionService {
         }
 
         if (newDirection == null) {
-            return null; // Не определено направление
+            return null;
         }
 
-        // 2. Расчет уровней стоп-лосса и тейк-профита
-        BigDecimal takeProfit = forecastPriceBD;
-        BigDecimal stopLoss = null;
+        // 2. Расчет уровней takeProfit и stopLoss
+        double takeProfit;
+        double stopLoss;
+        double priceDiff = Math.abs(forecastPrice - lastPrice);
 
-        // Расстояние между текущей ценой и прогнозом
-        BigDecimal priceDiff = forecastPriceBD.subtract(lastPrice).abs();
-
-        // Логика для новых позиций
         if (newDirection.isOpening()) {
+            // Новая позиция
+            takeProfit = forecastPrice;
             if (newDirection.isLong()) {
-                stopLoss = lastPrice.subtract(priceDiff.multiply(riskMultiplier));
+                stopLoss = lastPrice - (priceDiff * riskMultiplier);
             } else {
-                stopLoss = lastPrice.add(priceDiff.multiply(riskMultiplier));
+                stopLoss = lastPrice + (priceDiff * riskMultiplier);
             }
-        }
-        // Логика для удержания позиций
-        else {
-            // Если цена превысила предыдущий тейк-профит
-            if (prevDecision != null) {
-                if (newDirection.isLong() && lastPrice.compareTo(prevDecision.getTakeProfit()) > 0) {
-                    stopLoss = prevDecision.getTakeProfit(); // Перенос стопа на предыдущий TP
-                } else if (newDirection.isShort() && lastPrice.compareTo(prevDecision.getTakeProfit()) < 0) {
-                    stopLoss = prevDecision.getTakeProfit(); // Перенос стопа на предыдущий TP
+        } else {
+            // Удержание позиции
+            double prevTakeProfit = prevDecision.getTakeProfit().doubleValue();
+            double prevStopLoss = prevDecision.getStopLoss().doubleValue();
+
+            if (newDirection.isLong()) {
+                // Для LONG
+                if (forecastPrice > prevTakeProfit) {
+                    takeProfit = forecastPrice;
+                    stopLoss = prevTakeProfit;
+                } else if (forecastPrice > entryPrice) {
+                    takeProfit = forecastPrice;
+                    double diff = Math.abs(forecastPrice - lastPrice);
+                    stopLoss = lastPrice - (diff * riskMultiplier);
+                } else {
+                    takeProfit = prevTakeProfit;
+                    stopLoss = prevStopLoss;
                 }
-                // Стандартный расчет стоп-лосса
-                else {
-                    if (newDirection.isLong()) {
-                        stopLoss = lastPrice.subtract(priceDiff.multiply(riskMultiplier));
-                    } else {
-                        stopLoss = lastPrice.add(priceDiff.multiply(riskMultiplier));
-                    }
+            } else {
+                // Для SHORT
+                if (forecastPrice < prevTakeProfit) {
+                    takeProfit = forecastPrice;
+                    stopLoss = prevTakeProfit;
+                } else if (forecastPrice < entryPrice) {
+                    takeProfit = forecastPrice;
+                    double diff = Math.abs(forecastPrice - lastPrice);
+                    stopLoss = lastPrice + (diff * riskMultiplier);
+                } else {
+                    takeProfit = prevTakeProfit;
+                    stopLoss = prevStopLoss;
                 }
             }
         }
@@ -128,10 +136,10 @@ public class TradeDecisionService {
         // 3. Создание и сохранение решения
         TradeDecisionEntity decision = TradeDecisionEntity.builder()
                 .ticker(ticker)
-                .price(entryPrice)
-                .lastPrice(lastPrice)
-                .stopLoss(stopLoss)
-                .takeProfit(takeProfit)
+                .price(BigDecimal.valueOf(entryPrice))
+                .lastPrice(BigDecimal.valueOf(lastPrice))
+                .stopLoss(BigDecimal.valueOf(stopLoss))
+                .takeProfit(BigDecimal.valueOf(takeProfit))
                 .direction(newDirection)
                 .createdAt(OffsetDateTime.now())
                 .build();

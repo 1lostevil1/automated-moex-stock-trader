@@ -10,11 +10,15 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Service
 @Slf4j
 public class ForecastConsumer {
 
     private final TradeDecisionService tradeDecisionService;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(20);
     private final KafkaTemplate<String, TradeDecisionEntity> kafkaTemplate;
 
     private static final String TRADE_DECISION_TOPIC = "tradeResponse";
@@ -27,19 +31,16 @@ public class ForecastConsumer {
 
     @KafkaListener(topics = "forecastResponse", groupId = "tradeGroup")
     public void listen(ForecastResponse forecastResponse) {
-        try {
 
-            log.info(forecastResponse.toString());
-            TradeDecisionEntity tradeDecision = tradeDecisionService.makeDecision(forecastResponse);
+            executorService.submit(() -> {
+                try {
+                    TradeDecisionEntity tradeDecision = tradeDecisionService.makeDecision(forecastResponse);
+                    if (tradeDecision != null) {
+                        kafkaTemplate.send(TRADE_DECISION_TOPIC, tradeDecision);
+                    }
+                } catch (Exception ignored) {
+                }
+            });
 
-
-            if (tradeDecision != null) {
-                kafkaTemplate.send(TRADE_DECISION_TOPIC, tradeDecision);
-            }
-
-        } catch (Exception e) {
-            // Логирование ошибки
-            e.printStackTrace();
-        }
     }
 }

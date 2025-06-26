@@ -1,7 +1,6 @@
 package org.example.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.example.message.ForecastRequest;
 import org.example.postgres.entity.StockDataEntity;
 import org.example.postgres.entity.StockEntity;
@@ -13,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -40,12 +38,13 @@ public class KafkaSenderScheduler {
         final int MAX_RETRIES = 30000;
 
         while (!tickerQueue.isEmpty()) {
+
             String ticker = tickerQueue.poll();
             OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(11);
             List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
                     time);
 
-            if(forecastRequestList.size()==11) forecastRequestList.removeFirst();
+            if (forecastRequestList.size() == 11) forecastRequestList.removeFirst();
             boolean hasNullIndicators = forecastRequestList.stream()
                     .anyMatch(data -> data.getRsi() == null || data.getMacd() == null || data.getEma() == null);
 
@@ -59,7 +58,7 @@ public class KafkaSenderScheduler {
                     log.warn("Max retries reached for ticker {}. Skipping.", ticker);
                 }
             } else {
-                if(forecastRequestList.size()<10) {
+                if (forecastRequestList.size() < 10) {
                     log.info(ticker + "  " + forecastRequestList.size());
                     log.info("мало данных для предсказания");
                     continue;
