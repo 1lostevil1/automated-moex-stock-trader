@@ -24,7 +24,7 @@ const Login = () => {
       if (response.status === 200) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('username', username);
-        navigate('/home');
+        navigate('/subscribe');
       }
     } catch (error) {
       if (error.response) {
