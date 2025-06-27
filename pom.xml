@@ -32,6 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-telegram-bot-api.version>7.0.1</java-telegram-bot-api.version>
         <json.web.token.version>0.11.5</json.web.token.version>
+        <test.containers.version>1.19.3</test.containers.version>
+        <JUnit.version>5.10.0</JUnit.version>
     </properties>
 
     <dependencyManagement>
@@ -99,6 +101,41 @@
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-jackson</artifactId>
                 <version>${json.web.token.version}</version>
+            </dependency>
+
+            <!-- Testcontainers -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${test.containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- JUnit 5 -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${JUnit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

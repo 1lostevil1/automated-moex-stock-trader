@@ -7,4 +7,4 @@ CREATE TABLE forecast (
 );
 
 CREATE UNIQUE INDEX idx_forecast_ticker_timing_unique
-    ON forecast_response (ticker, timing);
+    ON forecast(ticker, timing);

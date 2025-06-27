@@ -41,10 +41,11 @@ public class UserRepository {
     }
 
     public void create(UserEntity user) {
-        String sql = "INSERT INTO telegram_user (id,username,password) " +
-                "VALUES (?, ?, ?)";
+        String sql = "INSERT INTO traders_user (id,username,telegram_username,password) " +
+                "VALUES (?, ?, ?, ?)";
         jdbcClient.sql(sql).params(user.getId(),
                 user.getUsername(),
+                user.getTelegramUsername(),
                 user.getPassword()
         ).update();
     }
