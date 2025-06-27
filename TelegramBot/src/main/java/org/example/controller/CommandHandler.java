@@ -1,7 +1,5 @@
 package org.example.controller;
 
-import com.pengrad.telegrambot.request.BaseRequest;
-import com.pengrad.telegrambot.response.BaseResponse;
 import org.example.command.*;
 import com.pengrad.telegrambot.model.Update;
 import org.example.postgres.repository.UserRepository;
@@ -9,12 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.pengrad.telegrambot.request.SendMessage;
 
-import java.util.List;
 import java.util.Map;
 
 @Component
 public class CommandHandler {
-
+    private static final String WRONG_COMMAND = "неверная команда!";
     private UserRepository repository;
     private Map<String, Command> commands;
 
@@ -42,7 +39,7 @@ public class CommandHandler {
         if (command != null) {
             return command.apply(update,repository);
         }
-        return new SendMessage(id, "неверная команда!");
+        return new SendMessage(id, WRONG_COMMAND);
     }
 
 }

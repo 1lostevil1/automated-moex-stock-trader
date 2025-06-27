@@ -17,6 +17,10 @@ import java.util.*;
 @Service
 @Slf4j
 public class KafkaSenderScheduler {
+    private static final int MIN_SIZE = 10;
+    private static final int TIME_ZONE_OFFSET = 3;
+
+    private static final int MINUTES_COUNT = 11;
     private final KafkaTemplate<String, ForecastRequest> kafkaTemplate;
     private final StockDataRepository stockDataRepository;
     private final StockRepository stockRepository;
@@ -40,11 +44,11 @@ public class KafkaSenderScheduler {
         while (!tickerQueue.isEmpty()) {
 
             String ticker = tickerQueue.poll();
-            OffsetDateTime time = OffsetDateTime.now().minusHours(3).minusMinutes(11);
+            OffsetDateTime time = OffsetDateTime.now().minusHours(TIME_ZONE_OFFSET).minusMinutes(MINUTES_COUNT);
             List<StockDataEntity> forecastRequestList = stockDataRepository.findByTickerFromTime(ticker,
                     time);
 
-            if (forecastRequestList.size() == 11) forecastRequestList.removeFirst();
+            if (forecastRequestList.size() == MINUTES_COUNT) forecastRequestList.removeFirst();
             boolean hasNullIndicators = forecastRequestList.stream()
                     .anyMatch(data -> data.getRsi() == null || data.getMacd() == null || data.getEma() == null);
 
@@ -58,7 +62,7 @@ public class KafkaSenderScheduler {
                     log.warn("Max retries reached for ticker {}. Skipping.", ticker);
                 }
             } else {
-                if (forecastRequestList.size() < 10) {
+                if (forecastRequestList.size() < MIN_SIZE) {
                     log.info(ticker + "  " + forecastRequestList.size());
                     log.info("мало данных для предсказания");
                     continue;

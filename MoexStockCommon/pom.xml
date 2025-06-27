@@ -21,10 +21,10 @@
         </dependency>
 
         <!-- Liquibase core -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Для обработки конфигураций -->
         <dependency>

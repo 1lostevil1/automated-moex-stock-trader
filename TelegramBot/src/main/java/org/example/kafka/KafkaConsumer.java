@@ -17,6 +17,14 @@ public class KafkaConsumer {
     private final UserRepository repository;
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
     private final TelegramBotController bot;
+    private static final String MESSAGE_TEMPLATE = """
+        Акция с тикером: %s\n
+        Цена входа: %s\n
+        Цена сейчас: %s\n
+        TP: %s\n
+        SL: %s\n
+        Направление: %s\n
+    """;
 
     @Autowired
     public KafkaConsumer(TelegramBotController bot, UserRepository repository) {
@@ -29,12 +37,13 @@ public class KafkaConsumer {
         var users = repository.getUsers(tradeDecision.getTicker());
         executorService.submit(() -> {
             try {
-                String text = "Акция с тикером:  " + tradeDecision.getTicker()
-                        + "\nЦена входа:" + tradeDecision.getPrice()
-                        + "\nЦена сейчас:" + tradeDecision.getLastPrice()
-                        + "\nTP:" + tradeDecision.getTakeProfit()
-                        + "\nSL:" + tradeDecision.getStopLoss()
-                        + "\nНаправление:" + tradeDecision.getDirection();
+                String text = String.format(MESSAGE_TEMPLATE,
+                        tradeDecision.getTicker(),
+                        tradeDecision.getPrice().toString(),
+                        tradeDecision.getLastPrice().toString(),
+                        tradeDecision.getTakeProfit().toString(),
+                        tradeDecision.getStopLoss().toString(),
+                        tradeDecision.getDirection().name());
                 System.out.println(text);
                 for (var user : users) {
                     bot.sendNotification(new SendMessage(user, text));
