@@ -11,6 +11,6 @@ spring:
 server:
   port: 9888
 jwt:
-  secret: "ocheni_nadezniy_kluch-otvechau-xren-vzlomaesh"
+  secret: "ocheni_nadezniy_kluch_otvechau_xren_vzlomaesh"
   lifetime: 900000
 
