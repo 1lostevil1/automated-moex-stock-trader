@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './App.css';
+import '..//styles/App.css';
 
 const App = () => {
   const [lightText, setLightText] = useState('');
@@ -47,7 +47,7 @@ const App = () => {
               // Запускаем анимацию денежного дождя и кнопок
               setTimeout(() => {
                 setButtonsVisible(true);
-              }, 0);
+              }, 300);
             }
           }, 150);
         }, 500);

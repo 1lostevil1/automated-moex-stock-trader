@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.register-app {
+  background-color: #000;
+  color: white;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.dollar-bills {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.dollar-bill {
+  position: absolute;
+  top: -100px;
+  animation: fall linear infinite;
+  opacity: 0.7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bill-rectangle {
+  width: 80px;
+  height: 35px;
+  background-color: rgba(50, 205, 50, 0.2);
+  border: 1px solid rgba(50, 205, 50, 0.5);
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.bill-circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(50, 205, 50, 0.3);
+  border: 1px solid rgba(50, 205, 50, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bill-dollar {
+  color: rgba(50, 205, 50, 0.9);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(calc(100vh + 100px)) rotate(360deg);
+  }
+}
+
+.register-content {
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  font-size: 5rem;
+}
+
+.register-title-light {
+  font-weight: 100;
+  line-height: 0.9;
+  color: white;
+}
+
+.register-title-cash {
+  font-weight: 700;
+  line-height: 0.9;
+  color: white;
+}
+
+.dollar-sign {
+  background: linear-gradient(to bottom, #00ff00, #008000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (max-width: 480px) {
+  .register-title-light {
+    font-size: 2.5rem;
+  }
+  
+  .register-title-cash {
+    font-size: 3rem;
+  }
+}
+
+.register-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-container {
+  width: 100%;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 15px 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 5px;
+  color: white;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.input-container input:focus {
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.input-container input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.register-submit-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #00ff00;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.register-submit-btn:hover:not(:disabled) {
+  background-color: #008000;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+}
+
+.register-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-login-btn {
+  margin-top: 1.5rem;
+  background-color: transparent;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  padding: 15px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 100%;
+}
+
+.register-login-btn:hover:not(:disabled) {
+  background-color: rgba(0, 255, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+}
+
+.register-login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-error {
+  color: #ff5555;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .register-title {
+    font-size: 3rem;
+  }
+  
+  .input-container input,
+  .register-submit-btn,
+  .register-login-btn {
+    padding: 12px 15px;
+  }
+}
