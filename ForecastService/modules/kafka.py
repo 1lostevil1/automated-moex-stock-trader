@@ -37,6 +37,7 @@ def create_producer(config_path: str = DEFAULT_KAFKA_CONFIG_DIR):
 def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
                      ml: MLController, topic: str = REQUEST_TOPIC) -> None:
     try:
+        prev_prices = {}
         consumer.subscribe([topic])
         while True:
             msg = consumer.poll()
@@ -56,17 +57,20 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
 
                 reply_topic = RESPONSE_TOPIC
 
-                ml_req: MLrequest = process_forecast_dict(value_parsed)
-
+                ml_req, current_close, prediction_time = process_forecast_dict(value_parsed)
+                prev_close = prev_prices[ml_req.ticker] if ml_req.ticker in prev_prices else 0.0
                 prediction: Optional[float] = ml.get_prediction_by_request(ml_req)
-                response = {"ticker": ml_req.ticker, "closePrice": prediction}
-                print(response)
+                response = {"ticker": ml_req.ticker, "closePrice": prediction, "lastPrice": prev_close,
+                            "timing": prediction_time}
+                print(f"CLOSE PRICE = {current_close};\n"
+                      f"RESPONSE = {response}")
                 if prediction is not None:
                     producer.produce(
                         topic=reply_topic,
                         value=dumps(response),
                     )
-                    print(f"Отправлен прогноз в топик {reply_topic})")
+                    prev_prices[ml_req.ticker] = current_close
+                    print(f"(Отправлен прогноз в топик {reply_topic})")
             except Exception as e:
                 print(f"Ошибка обработки сообщения: {e}")
     except KeyboardInterrupt:

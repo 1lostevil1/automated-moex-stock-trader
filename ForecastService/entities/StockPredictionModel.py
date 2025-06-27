@@ -12,7 +12,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, CSVLogger
 from sklearn.preprocessing import MinMaxScaler
 
-from ForecastService.modules.data_processor import preprocess_data, NUM_OF_FEATS
+from ForecastService.modules.data_processor import preprocess_data_for_deploy, NUM_OF_FEATS
 
 DEFAULT_LOGS_DIR: str = f"..\\logs"
 
@@ -51,8 +51,8 @@ class StockPredictionModel:
     def init_model(self, ticker: str, df: "pd.DataFrame", dir_path: str):
         training_data_len = int(len(df) * 0.8)
         model_path = os.path.join(dir_path, ticker)
-        X_train, y_train, X_test, y_test = preprocess_data(df, self.__scaler_X, self.__scaler_Y,
-                                                           training_data_len)
+        X_train, y_train = preprocess_data_for_deploy(df, self.__scaler_X, self.__scaler_Y,
+                                                      training_data_len)
 
         self.__model_curr = self.train_model(X_train, y_train, ticker, model_path)
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr
@@ -110,7 +110,7 @@ class StockPredictionModel:
     def retrain_model(self, ticker: str, df: "pd.DataFrame", dir_path: str) -> None:
         training_data_len = int(len(df) * 0.8)
         model_path = os.path.join(dir_path, ticker)
-        X_train, y_train, _, _ = preprocess_data(df, self.__scaler_X, self.__scaler_Y, training_data_len)
+        X_train, y_train = preprocess_data_for_deploy(df, self.__scaler_X, self.__scaler_Y, training_data_len)
         self.model_in_use = self.__model_prev
         self.__model_curr = self.train_model(X_train, y_train, ticker, model_path)
         self.model_in_use, self.__model_prev = self.__model_curr, self.__model_curr

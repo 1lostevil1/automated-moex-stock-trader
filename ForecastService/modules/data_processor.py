@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass, fields
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
 from sklearn.preprocessing import MinMaxScaler
+from zoneinfo import ZoneInfo
 from operator import attrgetter
 
 USED_COLUMNS = [
@@ -15,9 +16,9 @@ USED_COLUMNS = [
     # "volume",
     # "bid_volume",
     # "ask_volume",
-    "buy_volume",
-    "sell_volume",
-    "rsi",
+    # "buy_volume",
+    # "sell_volume",
+    # "rsi",
     # "macd",
     # "ema"
 ]
@@ -52,8 +53,8 @@ class MLrequest:
     stocks: List[StockDataEntity]
 
 
-def preprocess_data(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
-                    scaler_Y: MinMaxScaler, training_data_len: int):
+def preprocess_data_for_test(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
+                             scaler_Y: MinMaxScaler, training_data_len: int):
     input_data: "pd.DataFrame" = df[USED_COLUMNS].copy()
     target_data: "pd.DataFrame" = df[[TARGET_COLUMN]].copy()
 
@@ -85,12 +86,46 @@ def preprocess_data(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
     return x_train, y_train, x_test, y_test
 
 
-def process_forecast_dict(fc_dict: dict) -> MLrequest:
+def preprocess_data_for_deploy(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
+                               scaler_Y: MinMaxScaler, training_data_len: int):
+    input_data: "pd.DataFrame" = df[USED_COLUMNS].copy()
+    target_data: "pd.DataFrame" = df[[TARGET_COLUMN]].copy()
+
+    scaled_inputs = []
+    for i, col in enumerate(USED_COLUMNS):
+        scaled_feature = scaler_X[i].fit_transform(input_data[col].values.reshape(-1, 1))
+        scaled_inputs.append(scaled_feature)
+    scaled_input_data = np.hstack(scaled_inputs)
+
+    scaled_target = scaler_Y.fit_transform(target_data)
+
+    # Используем все данные кроме последних 10 элементов
+    full_input = scaled_input_data[:-10, :]
+    full_target = scaled_target[:-10, :]
+
+    x_train, y_train = [], []
+    for i in range(10, len(full_input)):
+        x_train.append(full_input[i - 10:i, :])
+        y_train.append(full_target[i, 0])
+
+    x_train, y_train = np.array(x_train), np.array(y_train)
+
+    # Подготавливаем последнее окно для предсказания
+    x_last = []
+    x_last.append(scaled_input_data[-10:, :])  # Последние 10 известных точек
+
+    return x_train, y_train
+
+
+def process_forecast_dict(fc_dict: dict) -> tuple[MLrequest, Decimal, str]:
     ticker = fc_dict["ticker"]
-    stocks = []
+    stocks: list[StockDataEntity] = []
     for stock in fc_dict["stocks"]:
         stocks.append(StockDataEntity(**stock))
-    return MLrequest(ticker, stocks)
+    ts = float(str(stocks[-1].time))
+    prediction_time = datetime.fromtimestamp(ts, tz=ZoneInfo("Europe/Moscow")) + timedelta(minutes=1)
+    prediction_time = str(prediction_time)
+    return MLrequest(ticker, stocks), stocks[-1].close_price, prediction_time
 
 
 def process_ml_request(ml_req: MLrequest) -> list[list[float]]:

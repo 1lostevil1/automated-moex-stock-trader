@@ -24,11 +24,11 @@ DATA_SCRIPT = """
                      ema
               FROM stock_data
               WHERE ticker = %s
-                AND bid_volume != 0 AND ask_volume != 0
-                AND rsi IS NOT NULL
-                AND macd IS NOT NULL
-                AND ema IS NOT NULL
-                AND CAST("time" AS TIME) BETWEEN '10:00:00' AND '18:40:00'
+                -- AND bid_volume != 0 AND ask_volume != 0
+                -- AND rsi IS NOT NULL
+                -- AND macd IS NOT NULL
+                -- AND ema IS NOT NULL
+                AND CAST("time" AS TIME) BETWEEN '07:00:00' AND '23:30:00'
               ORDER BY "time"; \
               """
 
