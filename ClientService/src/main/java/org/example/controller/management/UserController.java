@@ -38,7 +38,7 @@ public class UserController {
 
     @PostMapping("/secured/subscribe")
     public ResponseEntity<?> subscribeTicker(@RequestHeader("Authorization") String jwtToken, @Validated @RequestBody TickerRequest request) {
-        if (!userService.subscribe(request.ticker(), jwtToken)) {
+        if (!userService.subscribe(jwtToken,request.ticker())) {
             return new ResponseEntity<>(new InvestApiTokenAlreadyInUseException(HttpStatus.BAD_REQUEST.value(), "Вы уже подписаны на данный тикер"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Вы подписались на тикер");
@@ -46,7 +46,7 @@ public class UserController {
 
     @PostMapping("/secured/unsubscribe")
     public ResponseEntity<?> unsubscribeTicker(@RequestHeader("Authorization") String jwtToken, @Validated @RequestBody TickerRequest request) {
-        if (!userService.unsubscribe(request.ticker(), jwtToken)) {
+        if (!userService.unsubscribe(jwtToken,request.ticker())) {
             return new ResponseEntity<>(new InvestApiTokenAlreadyInUseException(HttpStatus.BAD_REQUEST.value(), "Вы еще не подписаны на данный тикер"), HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok("Вы отписались от тикера");

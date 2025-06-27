@@ -53,7 +53,7 @@ const App = () => {
     return () => {
       clearInterval(lightInterval);
     };
-  }, []);
+  }, [navigate]);
 
   const handleLogin = () => navigate('/login');
   const handleRegister = () => navigate('/register');

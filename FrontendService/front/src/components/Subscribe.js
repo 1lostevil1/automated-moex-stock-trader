@@ -53,7 +53,7 @@ const Subscribe = () => {
 
   const fetchStocks = async () => {
     try {
-      const response = await axios.get('/api/stocks');
+      const response = await axios.get('http://localhost:9888/api/stocks');
       setStocks(response.data);
       if (response.data.length > 0) {
         setSelectedStock(response.data[0].ticker);
@@ -65,22 +65,26 @@ const Subscribe = () => {
 
   const fetchSubscribedStocks = async () => {
     try {
-      const response = await axios.get('/api/secured/stocksByJwt', {
-        headers: { Authorization: jwtToken }
+      const response = await axios.get('http://localhost:9888/api/secured/stocksByJwt', {
+        headers: { Authorization: `Bearer ${jwtToken}`}
       });
-      setSubscribedStocks(response.data.map(stock => stock.ticker));
+      setSubscribedStocks(response.data);
     } catch (error) {
       console.error('Ошибка загрузки подписок:', error);
     }
   };
 
   const setupWebSocket = () => {
-    const socket = new SockJS('/ws');
+    const socket = new SockJS('http://localhost:9888/ws');
     stompClient.current = Stomp.over(socket);
     stompClient.current.connect({}, () => {
+      console.log('WebSocket подключен');
       stompClient.current.subscribe('/topic/forecastResponse', (message) => {
         const newData = JSON.parse(message.body);
         updateChartData(newData);
+      });
+      stompClient.current.subscribe('/topic/tradeDecision', (message) => {
+        console.log(message);
       });
     });
   };
@@ -130,11 +134,11 @@ const Subscribe = () => {
 
   const handleSubscribe = async (ticker, isSubscribed) => {
     try {
-      const endpoint = isSubscribed ? '/api/secured/unsubscribe' : '/api/secured/subscribe';
+      const endpoint = isSubscribed ? 'http://localhost:9888/api/secured/unsubscribe' : 'http://localhost:9888/api/secured/subscribe';
       const response = await axios.post(
         endpoint,
         { ticker },
-        { headers: { Authorization: jwtToken } }
+        { headers: { Authorization:`Bearer ${jwtToken}`}}
       );
 
       if (response.status === 200) {

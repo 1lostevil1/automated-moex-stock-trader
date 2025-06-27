@@ -35,7 +35,7 @@ public class BearerAuthorizationFilter extends OncePerRequestFilter {
         final String bearerStarting = "Bearer ";
 
         if (authHeader != null && authHeader.startsWith(bearerStarting)) {
-            jwtToken = authHeader.substring(bearerStarting.length());
+            jwtToken = authHeader;
             try {
                 username = jwtTokenUtils.getUsername(jwtToken);
             } catch (ExpiredJwtException e) {

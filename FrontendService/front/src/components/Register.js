@@ -6,7 +6,7 @@ import '..//styles/Register.css';
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [telegramUsername, setTelegramUsername] = useState('');
+  const [telegram_username, setTelegramUsername] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/signup', {
+      const response = await axios.post('http://localhost:9888/api/signup', {
         username,
         password,
-        telegramUsername
+        telegram_username
       });
 
       if (response.status === 200) {
@@ -100,7 +100,7 @@ const Register = () => {
             <input
               type="text"
               id="telegramUsername"
-              value={telegramUsername}
+              value={telegram_username}
               onChange={(e) => setTelegramUsername(e.target.value)}
               placeholder="Telegram username"
               required

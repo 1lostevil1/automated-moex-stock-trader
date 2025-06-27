@@ -87,17 +87,17 @@ public class UserService implements UserDetailsService {
 
     public boolean subscribe(String token, String ticker){
         var entity = getUserEntityOutOfJwt(token).orElseThrow();
-        if(userStockRepository.exists(entity.getId(),token))
+        if(userStockRepository.exists(entity.getId(),ticker))
             return false;
-        userStockRepository.subscribe(entity.getId(),token);
+        userStockRepository.subscribe(entity.getId(),ticker);
         return true;
     }
 
     public boolean unsubscribe(String token, String ticker){
         var entity = getUserEntityOutOfJwt(token).orElseThrow();
-        if(!userStockRepository.exists(entity.getId(),token))
+        if(!userStockRepository.exists(entity.getId(),ticker))
             return false;
-        userStockRepository.unsubscribe(entity.getId(),token);
+        userStockRepository.unsubscribe(entity.getId(),ticker);
         return true;
     }
 }

@@ -30,11 +30,11 @@ public class UserStockRepository {
 
     public boolean exists(String id,String ticker) {
         String sql = "SELECT id FROM user_stock WHERE id = ? AND ticker = ?";
-        return jdbcClient.sql(sql).param(id,ticker).query().rowSet().next();
+        return jdbcClient.sql(sql).params(id,ticker).query().rowSet().next();
     }
 
     public List<String> getById(String id) {
         String sql = "SELECT ticker FROM user_stock WHERE id = ?";
-        return jdbcClient.sql(sql).param(id).query((rs, rowNumber) -> rs.getString("ticker")).stream().toList();
+        return jdbcClient.sql(sql).params(id).query((rs, rowNumber) -> rs.getString("ticker")).stream().toList();
     }
 }

@@ -16,13 +16,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/authenticate', {
+      const response = await axios.post('http://localhost:9888/api/authenticate', {
         username: username,
         password: password,
       });
 
       if (response.status === 200) {
-        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('token', response.data.token);
         localStorage.setItem('username', username);
         navigate('/subscribe');
       }
