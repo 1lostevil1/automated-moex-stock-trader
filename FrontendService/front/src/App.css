@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app {
+  background-color: #000;
+  color: white;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.content {
+  text-align: center;
+  z-index: 2;
+  width: 100%;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.text {
+  font-size: 9rem;
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 0.9;
+}
+
+.light {
+  font-weight: 100;
+  letter-spacing: 2px;
+}
+
+.cash {
+  font-weight: 700;
+}
+
+.cash span.dollar {
+  color: white;
+  position: relative;
+}
+
+.cash span.dollar.animate {
+  animation: dollarJump 1.5s ease-in-out forwards;
+}
+
+.dollar-char {
+  display: inline-block;
+  color: white;
+  position: relative;
+}
+
+.dollar-char.animate {
+  animation: dollarJump 1.5s ease-in-out forwards;
+}
+
+@keyframes dollarJump {
+  0% { 
+    transform: translateY(0); 
+    color: white; 
+  }
+  50% { 
+    transform: translateY(30px); 
+  }
+  100% { 
+    transform: translateY(0); 
+    color: transparent; 
+    background: linear-gradient(to bottom, #00ff00, #008000); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+  }
+}
+
+.cursor {
+  position: absolute;
+  right: -15px;
+  animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+
+
+.dollar-bills {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 1s 5s forwards;
+}
+
+.dollar-bill {
+  position: absolute;
+  top: -100px;
+  animation: fall linear infinite;
+  opacity: 0.7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bill-rectangle {
+  width: 80px;
+  height: 35px;
+  background-color: rgba(50, 205, 50, 0.2);
+  border: 1px solid rgba(50, 205, 50, 0.5);
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.bill-circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(50, 205, 50, 0.3);
+  border: 1px solid rgba(50, 205, 50, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bill-dollar {
+  color: rgba(50, 205, 50, 0.9);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(calc(100vh + 100px)) rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  to { opacity: 0.7; }
+}
+
+.buttons {
+  margin-top: 3rem;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  animation: fadeInButtons 1s 6.5s forwards;
+}
+
+@keyframes fadeInButtons {
+  to { opacity: 1; }
+}
+
+.login-btn, .register-btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.3rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.login-btn {
+  background-color: #00ff00;
+  color: black;
+}
+
+.register-btn {
+  background-color: transparent;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+}
+
+.login-btn:hover {
+  background-color: #008000;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+}
+
+.register-btn:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+}
