@@ -33,7 +33,10 @@ public class TradeDecisionService {
         TradeDecisionEntity prevDecision = tradeDecisionRepository.findByTicker(ticker);
         TradeDecisionDirection newDirection = calculateNewDirection(prevDecision, lastPrice, forecastPrice);
 
-        if (newDirection == null || newDirection.isHold()) {
+        // Не создаем новое решение если:
+        // - Закрытие по SL (newDirection == null)
+        // - Удержание позиции без изменений (newDirection.isHold() и нет изменений в уровнях)
+        if (newDirection == null || (prevDecision != null && newDirection == prevDecision.getDirection())) {
             return null;
         }
 
@@ -46,41 +49,51 @@ public class TradeDecisionService {
     private TradeDecisionDirection calculateNewDirection(TradeDecisionEntity prevDecision,
                                                          double lastPrice,
                                                          double forecastPrice) {
-        // Новые позиции
+        // 1. Новая позиция (если нет предыдущего решения)
         if (prevDecision == null) {
             return forecastPrice > lastPrice ?
                     TradeDecisionDirection.LONG :
                     TradeDecisionDirection.SHORT;
         }
 
-        TradeDecisionDirection prevDir = prevDecision.getDirection();
+        TradeDecisionDirection currentDir = prevDecision.getDirection();
+        double stopLoss = prevDecision.getStopLoss().doubleValue();
 
-        // Проверка стоп-лосса (используем getBaseDirection() для закрытия)
-        if ((prevDir.isLong() && lastPrice <= prevDecision.getStopLoss().doubleValue()) ||
-                (prevDir.isShort() && lastPrice >= prevDecision.getStopLoss().doubleValue())) {
-            return prevDir == TradeDecisionDirection.LONG || prevDir == TradeDecisionDirection.LONG_HOLD ?
-                    TradeDecisionDirection.LONG_HOLD : // Для закрытия LONG
-                    TradeDecisionDirection.SHORT_HOLD; // Для закрытия SHORT
+        // 2. Проверка стоп-лосса
+        if ((currentDir.isLong() && lastPrice <= stopLoss) ||
+                (currentDir.isShort() && lastPrice >= stopLoss)) {
+            return null; // Закрытие позиции
         }
 
-        // Проверка достижения TP (переводим в HOLD режим)
-        if ((prevDir.isLong() && lastPrice >= prevDecision.getTakeProfit().doubleValue()) ||
-                (prevDir.isShort() && lastPrice <= prevDecision.getTakeProfit().doubleValue())) {
-            return prevDir.isLong() ?
+        // 3. Удержание позиции
+        if (shouldHoldPosition(currentDir, lastPrice, forecastPrice, stopLoss)) {
+            return currentDir.isLong() ?
                     TradeDecisionDirection.LONG_HOLD :
                     TradeDecisionDirection.SHORT_HOLD;
         }
 
-        // Разворот при противоположном прогнозе
-        if ((prevDir.isLong() && forecastPrice < lastPrice) ||
-                (prevDir.isShort() && forecastPrice > lastPrice)) {
-            return forecastPrice > lastPrice ?
-                    TradeDecisionDirection.LONG :
-                    TradeDecisionDirection.SHORT;
-        }
+        // 4. Разворот позиции
+        return forecastPrice > lastPrice ?
+                TradeDecisionDirection.LONG :
+                TradeDecisionDirection.SHORT;
+    }
 
-        // Сохранение текущего направления
-        return prevDir;
+    private boolean shouldHoldPosition(TradeDecisionDirection currentDir,
+                                       double lastPrice,
+                                       double forecastPrice,
+                                       double stopLoss) {
+        // 1. Прогноз согласуется с текущим направлением
+        boolean forecastAgrees = (currentDir.isLong() && forecastPrice > lastPrice) ||
+                (currentDir.isShort() && forecastPrice < lastPrice);
+
+        // 2. Прогноз нейтрален (цена не изменилась)
+        boolean forecastNeutral = forecastPrice == lastPrice;
+
+        // 3. Цена еще не достигла SL
+        boolean notAtStopLoss = (currentDir.isLong() && lastPrice > stopLoss) ||
+                (currentDir.isShort() && lastPrice < stopLoss);
+
+        return forecastAgrees || forecastNeutral || notAtStopLoss;
     }
 
     private double[] calculateLevels(TradeDecisionDirection direction,
@@ -88,28 +101,62 @@ public class TradeDecisionService {
                                      double entryPrice,
                                      double lastPrice,
                                      double forecastPrice) {
-        // Для новых позиций
+        // 1. Закрытие позиции (не используется, так как возвращается null)
+        if (direction == null) {
+            return new double[]{lastPrice, lastPrice};
+        }
+
+        // 2. Новая позиция
         if (direction.isOpening()) {
-            double stopLoss = direction.isLong() ?
-                    entryPrice - (forecastPrice - entryPrice) * 0.5 :
-                    entryPrice + (entryPrice - forecastPrice) * 0.5;
-            return new double[]{forecastPrice, stopLoss};
+            double takeProfit = forecastPrice;
+            double stopLoss;
+
+            if (direction.isLong()) {
+                // LONG: SL = entry - 50% расстояния до TP
+                stopLoss = entryPrice - (takeProfit - entryPrice) / 2;
+            } else {
+                // SHORT: SL = entry + 50% расстояния до TP
+                stopLoss = entryPrice + (entryPrice - takeProfit) / 2;
+            }
+
+            return new double[]{takeProfit, stopLoss};
         }
 
-        // Для режима удержания (HOLD)
+        // 3. Режим удержания
         if (direction.isHold()) {
-            double initialTakeProfit = prevDecision.getTakeProfit().doubleValue();
-            return new double[]{
-                    forecastPrice, // Обновленный TP
-                    initialTakeProfit // SL = предыдущий TP
-            };
+            if (prevDecision != null) {
+                // Проверяем, достигнут ли старый Take Profit
+                if (isTakeProfitReached(prevDecision, lastPrice)) {
+                    // Сдвигаем SL на предыдущий TP, TP на новый прогноз
+                    return new double[]{
+                            forecastPrice, // новый TP
+                            prevDecision.getTakeProfit().doubleValue() // новый SL = старый TP
+                    };
+                } else {
+                    // Не достигли TP → оставляем SL, обновляем TP
+                    return new double[]{
+                            forecastPrice, // новый TP
+                            prevDecision.getStopLoss().doubleValue() // SL без изменений
+                    };
+                }
+            }
         }
 
-        // Для других случаев (не должно происходить)
-        return new double[]{
-                prevDecision != null ? prevDecision.getTakeProfit().doubleValue() : lastPrice,
-                prevDecision != null ? prevDecision.getStopLoss().doubleValue() : lastPrice
-        };
+        // 4. Без изменений или ошибка
+        return new double[]{lastPrice, lastPrice};
+    }
+
+    private boolean isTakeProfitReached(TradeDecisionEntity prevDecision, double lastPrice) {
+        if (prevDecision == null) return false;
+        TradeDecisionDirection direction = prevDecision.getDirection();
+        BigDecimal takeProfit = prevDecision.getTakeProfit();
+
+        if (direction.isLong()) {
+            return lastPrice >= takeProfit.doubleValue();
+        } else if (direction.isShort()) {
+            return lastPrice <= takeProfit.doubleValue();
+        }
+        return false;
     }
 
     private TradeDecisionEntity buildAndSaveDecision(String ticker,
