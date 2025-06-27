@@ -37,7 +37,9 @@ public class TradeDecisionService {
         // - Закрытие по SL (newDirection == null)
         // - Удержание позиции без изменений (newDirection.isHold() и нет изменений в уровнях)
         if (newDirection == null || (prevDecision != null && newDirection == prevDecision.getDirection())) {
-            return null;
+            prevDecision.setDirection(newDirection);
+            tradeDecisionRepository.save(prevDecision);
+            return prevDecision;
         }
 
         double entryPrice = prevDecision != null ? prevDecision.getPrice().doubleValue() : lastPrice;

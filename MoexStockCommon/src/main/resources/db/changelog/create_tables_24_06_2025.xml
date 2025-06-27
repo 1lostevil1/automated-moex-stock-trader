@@ -6,9 +6,10 @@
 
     <changeSet id="create-decision" author="kireev">
         <sqlFile path="changes/create/create_table_trade_decision.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="changes/create/create_table_forecast.sql" relativeToChangelogFile="true"/>
 
         <rollback>
-            <sqlFile path="changes/rollback/rollback_create_table_trade_decision.sql" relativeToChangelogFile="true"/>
+            <sqlFile path="changes/rollback/rollback_create_table_forecast.sql" relativeToChangelogFile="true"/>
 
         </rollback>
     </changeSet>
