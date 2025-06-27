@@ -1,0 +1,252 @@
+.subscribe-app {
+  background-color: #000;
+  color: white;
+  height: 100vh;
+  width: 100vw;
+  padding: 2rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.subscribe-container {
+  display: flex;
+  width: 100%;
+  height: 90vh;
+  gap: 2rem;
+}
+
+.chart-section {
+  flex: 2;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-title {
+  color: #00ff00;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+}
+
+.chart-loading {
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.stocks-section {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  overflow-y: auto;
+}
+
+.stocks-title {
+  color: #00ff00;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.stocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stock-item {
+  background-color: transparent;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 5px;
+  padding: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stock-item:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.stock-item.selected {
+  background-color: rgba(0, 255, 0, 0.2);
+  border: 1px solid #00ff00;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-ticker {
+  color: #fff;
+  font-weight: 700;
+}
+
+.stock-name {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.subscribe-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  border: 2px solid #00ff00;
+}
+
+.subscribe-btn.subscribed {
+  background-color: #00ff00;
+  color: #000;
+}
+
+.subscribe-btn.unsubscribed {
+  background-color: transparent;
+  color: #00ff00;
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
+}
+
+.subscribe-btn.subscribed:hover {
+  background-color: #008000;
+}
+
+.subscribe-btn.unsubscribed:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  font-weight: 700;
+  animation: fadeIn 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.notification.success {
+  background-color: rgba(0, 255, 0, 0.8);
+}
+
+.notification.error {
+  background-color: rgba(255, 0, 0, 0.8);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.stock-ticker {
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.stock-name {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.stock-prices {
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.price-label {
+  color: #aaa;
+}
+
+.last-price {
+  color: #00ff00;
+}
+
+.predicted-price {
+  font-weight: 700;
+}
+
+.price-up {
+  color: #00ff00;
+}
+
+.price-down {
+  color: #ff5555;
+}
+
+@keyframes flash-up {
+  0% { color: #00ff00; }
+  50% { color: #ffffff; }
+  100% { color: #00ff00; }
+}
+
+@keyframes flash-down {
+  0% { color: #ff5555; }
+  50% { color: #ffffff; }
+  100% { color: #ff5555; }
+}
+
+.price-up.change {
+  animation: flash-up 0.5s;
+}
+
+.price-down.change {
+  animation: flash-down 0.5s;
+}
+
+.stocks-section-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.stocks-section {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.logout-btn {
+  padding: 1rem 2rem;
+  background-color: rgba(255, 0, 0, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 0, 0, 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}

@@ -6,14 +6,13 @@ const App = () => {
   const [lightText, setLightText] = useState('');
   const [cashText, setCashText] = useState('');
   const [showCursor, setShowCursor] = useState(false);
-  const [dollarIndex, setDollarIndex] = useState(-1); // Позиция $ в тексте
+  const [dollarIndex, setDollarIndex] = useState(-1); 
   const [buttonsVisible, setButtonsVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setShowCursor(true);
     
-    // Анимация печати LIGHT
     const lightWord = 'LIGHT';
     let lightIndex = 0;
     
@@ -25,7 +24,6 @@ const App = () => {
         clearInterval(lightInterval);
         
         setTimeout(() => {
-          // Анимация печати CA$H
           const cashWord = 'CA$H';
           let cashIndex = 0;
           
@@ -34,7 +32,6 @@ const App = () => {
               const newText = cashWord.substring(0, cashIndex + 1);
               setCashText(newText);
               
-              // Если дошли до $, запоминаем его позицию
               if (cashWord[cashIndex] === '$') {
                 setDollarIndex(cashIndex);
               }
@@ -44,7 +41,6 @@ const App = () => {
               clearInterval(cashInterval);
               setShowCursor(false);
               
-              // Запускаем анимацию денежного дождя и кнопок
               setTimeout(() => {
                 setButtonsVisible(true);
               }, 300);
@@ -62,7 +58,6 @@ const App = () => {
   const handleLogin = () => navigate('/login');
   const handleRegister = () => navigate('/register');
 
-  // Функция для рендеринга символов с обработкой $
   const renderCashText = () => {
     return cashText.split('').map((char, index) => {
       if (char === '$' && index === dollarIndex) {

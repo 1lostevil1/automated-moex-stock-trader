@@ -24,7 +24,7 @@ const Register = () => {
       });
 
       if (response.status === 200) {
-        navigate('/');
+        navigate('/subscribe');
       }
     } catch (error) {
       if (error.response) {
@@ -44,7 +44,7 @@ const Register = () => {
   };
 
   const handleLoginRedirect = () => {
-    navigate('/');
+    navigate('/login');
   };
 
   return (
