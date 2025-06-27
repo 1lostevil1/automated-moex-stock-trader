@@ -1,8 +1,8 @@
 package org.example.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.middleware.BearerAuthorizationFilter;
 import org.example.service.UserService;
-import org.example.utils.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -36,7 +36,7 @@ public class SecurityConfig {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private final JwtRequestFilter jwtRequestFilter;
+    private final BearerAuthorizationFilter jwtFilter;
 
 
     @Bean
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();

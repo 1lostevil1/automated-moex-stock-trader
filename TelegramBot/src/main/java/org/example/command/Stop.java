@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class Stop implements Command {
+    private static final String OK_MESSAGE = "Вы отписались от оповещений";
+    private static final String ERROR_MESSAGE = "Вы не подписаны";
     @Override
     public SendMessage apply(Update update, UserRepository repository) {
         Long id = update.message().chat().id();
@@ -17,9 +19,9 @@ public class Stop implements Command {
             var entity = repository.getByTelegramUsername(userName);
             entity.setTelegramId(null);
             repository.update(entity);
-            return new SendMessage(id, "Вы отписались от оповещений");
+            return new SendMessage(id, OK_MESSAGE);
         } catch (Exception e) {
-            return new SendMessage(id, "Вы не подписаны");
+            return new SendMessage(id, ERROR_MESSAGE);
         }
     }
 }
