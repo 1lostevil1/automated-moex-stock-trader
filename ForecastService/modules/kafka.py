@@ -56,17 +56,18 @@ def consume_messages(consumer: kafka.Consumer, producer: kafka.Producer,
 
                 reply_topic = RESPONSE_TOPIC
 
-                ml_req: MLrequest = process_forecast_dict(value_parsed)
+                ml_req, last_close, prediction_time = process_forecast_dict(value_parsed)
 
                 prediction: Optional[float] = ml.get_prediction_by_request(ml_req)
-                response = {"ticker": ml_req.ticker, "closePrice": prediction}
-                print(response)
+                response = {"ticker": ml_req.ticker, "closePrice": prediction, "timing": prediction_time}
+                print(f"CLOSE PRICE = {last_close};\n"
+                      f"FORECAST = {response}")
                 if prediction is not None:
                     producer.produce(
                         topic=reply_topic,
                         value=dumps(response),
                     )
-                    print(f"Отправлен прогноз в топик {reply_topic})")
+                    print(f"(Отправлен прогноз в топик {reply_topic})")
             except Exception as e:
                 print(f"Ошибка обработки сообщения: {e}")
     except KeyboardInterrupt:

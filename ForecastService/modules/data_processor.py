@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass, fields
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
 from sklearn.preprocessing import MinMaxScaler
+from zoneinfo import ZoneInfo
 from operator import attrgetter
 
 USED_COLUMNS = [
@@ -15,9 +16,9 @@ USED_COLUMNS = [
     # "volume",
     # "bid_volume",
     # "ask_volume",
-    "buy_volume",
-    "sell_volume",
-    "rsi",
+    # "buy_volume",
+    # "sell_volume",
+    # "rsi",
     # "macd",
     # "ema"
 ]
@@ -85,12 +86,15 @@ def preprocess_data(df: pd.DataFrame, scaler_X: list[MinMaxScaler],
     return x_train, y_train, x_test, y_test
 
 
-def process_forecast_dict(fc_dict: dict) -> MLrequest:
+def process_forecast_dict(fc_dict: dict) -> tuple[MLrequest, Decimal, str]:
     ticker = fc_dict["ticker"]
-    stocks = []
+    stocks: list[StockDataEntity] = []
     for stock in fc_dict["stocks"]:
         stocks.append(StockDataEntity(**stock))
-    return MLrequest(ticker, stocks)
+    ts = float(str(stocks[-1].time))
+    prediction_time = datetime.fromtimestamp(ts, tz=ZoneInfo("Europe/Moscow")) + timedelta(minutes=1)
+    prediction_time = str(prediction_time)
+    return MLrequest(ticker, stocks), stocks[-1].close_price, prediction_time
 
 
 def process_ml_request(ml_req: MLrequest) -> list[list[float]]:
